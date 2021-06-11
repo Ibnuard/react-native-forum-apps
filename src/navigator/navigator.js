@@ -1,33 +1,29 @@
 import * as React from 'react';
-import { View, Text, Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/AntDesign'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+//screens
+import HomeScreen from '../screens/HomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
-function HomeScreen({ navigation }) {
-    return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Home Screen</Text>
-            <Button title={'test'} onPress={() => navigation.navigate('Profile')} />
-            <Icon name="home" size={30} color="#900" />
-        </View>
-    );
-}
-
-function ProfileScreen() {
-    return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Profile Screen</Text>
-        </View>
-    );
-}
-
+//parent
 export const AppNavigator = () => {
     return (
-        <Stack.Navigator>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-        </Stack.Navigator>
+        <Tab.Navigator>
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen} />
+            <Tab.Screen
+                name="Topic"
+                component={ProfileScreen} />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen} />
+        </Tab.Navigator>
     )
 }
