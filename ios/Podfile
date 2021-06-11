@@ -12,6 +12,9 @@ target 'Forum' do
     :hermes_enabled => false
   )
 
+  # pods
+  pod 'Firebase/Analytics'
+
   target 'ForumTests' do
     inherit! :complete
     # Pods for testing
