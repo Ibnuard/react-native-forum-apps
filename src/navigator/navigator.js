@@ -10,6 +10,7 @@ import Header from '../components/Header/component';
 
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Colors } from '../styles';
+import LoginScreen from '../screens/LoginScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,5 +49,15 @@ export const AppNavigator = () => {
                 name="Profile"
                 component={ProfileScreen} />
         </Tab.Navigator>
+    )
+}
+
+export const AuthStack = () => {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen
+                name={'LoginScreen'}
+                component={LoginScreen} />
+        </Stack.Navigator>
     )
 }
