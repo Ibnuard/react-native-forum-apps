@@ -8,6 +8,9 @@ import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import Header from '../components/Header/component';
 
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import { Colors } from '../styles';
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -15,12 +18,29 @@ const Drawer = createDrawerNavigator();
 //parent
 export const AppNavigator = () => {
     return (
-        <Tab.Navigator screenOptions={{
-            header: () => <Header />
-        }}>
+        <Tab.Navigator screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+
+                if (route.name === 'Home') {
+                    iconName = 'home';
+                } else if (route.name === 'Profile') {
+                    iconName = 'user'
+                } else {
+                    iconName = 'plussquareo'
+                }
+
+                return <AntDesign name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: Colors.COLOR_PRIMARY,
+            tabBarInactiveTintColor: Colors.COLOR_DARK_GRAY
+        })}>
             <Tab.Screen
                 name="Home"
-                component={HomeScreen} />
+                component={HomeScreen}
+                options={{
+                    headerShown: false,
+                }} />
             <Tab.Screen
                 name="Topic"
                 component={ProfileScreen} />

@@ -1,5 +1,5 @@
-import * as Typography from './Typography'
+import * as TextStyle from './TextStyle'
 import * as Mixins from './Mixins'
 import * as Colors from './Colors'
 
-export { Typography, Mixins, Colors }
+export { TextStyle, Mixins, Colors }

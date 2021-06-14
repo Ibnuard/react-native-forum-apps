@@ -6,4 +6,4 @@ export const COLOR_GRAY = '#F5F5F5'
 export const COLOR_BLACK = '#101010'
 
 export const COLOR_DARK_GRAY = '#A9A9A9'
-export const COLOR_LIGHT_GRAY = '#CECECE'
+export const COLOR_LIGHT_GRAY = '#EDEDED'

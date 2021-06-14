@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, StatusBar } from 'react-native'
 import styles from './styles/HomeScreen'
 
 const ProfileScreen = () => {
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <Text>ProfileScreen</Text>
         </View>
     )

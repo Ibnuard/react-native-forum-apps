@@ -1,7 +1,6 @@
-const IMAGES = {
+export const IMAGES = {
+    heart: require('../assets/images/heart.png'),
     logo: require('../assets/images/logoWhite.png'),
     logoOrange: require('../assets/images/logoOrange.png'),
-    banner: require('../assets/images/banner.png')
+    banner: require('../assets/images/cover.png')
 }
-
-export default IMAGES
