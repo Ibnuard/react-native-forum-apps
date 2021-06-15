@@ -31,6 +31,12 @@ const styles = StyleSheet.create({
         borderRadius: 16
     },
 
+    imageSize: {
+        height: Mixins.scaleSize(28),
+        width: Mixins.scaleSize(28),
+        borderRadius: 16
+    },
+
     topLeftNameTime: {
         paddingHorizontal: Mixins.scaleSize(10)
     },

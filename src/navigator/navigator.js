@@ -84,7 +84,10 @@ export const AppNavigator = () => {
                 }} />
             <Tab.Screen
                 name="Topic"
-                component={TopicScreen} />
+                component={TopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
             <Tab.Screen
                 name="Profile"
                 component={ProfileScreen}

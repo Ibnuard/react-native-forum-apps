@@ -1,5 +1,5 @@
 export const COLOR_PRIMARY = '#E28B17'
-export const COLOR_SECONDARY = '#2274ff'
+export const COLOR_SECONDARY = '#0092ff'
 
 export const COLOR_WHITE = '#FFFFFF'
 export const COLOR_RED = '#FF6565'
