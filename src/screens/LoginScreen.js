@@ -6,16 +6,31 @@ import Screen from '../components/Screen/Component'
 import { TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD } from '../common/Typography'
 import Button from '../components/Button/Component'
 import styles from './styles/LoginScreen'
+
+//firebase
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
+import firestore from '@react-native-firebase/firestore'
+import { AuthContext } from '../store/Context'
 
 const LoginScreen = ({ navigation }) => {
+    const [user, setUser] = React.useState(null)
 
+    const { logIn } = React.useContext(AuthContext)
 
     //configure google signin
+    /*
     GoogleSignin.configure({
         webClientId: '992419438996-nvdutfoq59f3h9e8m4mhdrscrkfosu3b.apps.googleusercontent.com',
     });
+    */
+
+    React.useEffect(() => {
+        console.log(user)
+        if (user) {
+            isAlreadyRegistered(user)
+        }
+    }, [user])
 
     async function onGoogleButtonPress() {
         // Get the users ID token
@@ -32,12 +47,24 @@ const LoginScreen = ({ navigation }) => {
         console.log('logged in....')
         await onGoogleButtonPress()
             .then((credential) => {
-                console.log('Login with google success! credential : ' + credential)
-                navigation.navigate('AppStack')
+                const user = auth().currentUser
+                setUser(user)
             })
             .catch((err) => {
                 console.log('Login with google failed! error : ' + err)
             })
+    }
+
+    async function isAlreadyRegistered(data) {
+        const isUser = await firestore().collection('Users').doc(data?.email).get()
+
+        if (!isUser.exists) {
+            console.log('user not exist!');
+            navigation.navigate('Register', { data: data })
+        } else {
+            console.log('User exist!');
+            logIn(isUser.data())
+        }
     }
 
 

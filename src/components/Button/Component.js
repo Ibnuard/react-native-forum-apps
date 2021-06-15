@@ -8,12 +8,13 @@ const Button = ({
     text = 'Press Me!',
     textStyle,
     icon,
+    theme = 'default',
     buttonStyle,
     disabled = false
 }) => {
     return (
         <TouchableOpacity
-            style={[disabled ? styles.containerDisabled : styles.container, buttonStyle]} onPress={disabled ? null : onPress} activeOpacity={disabled ? 1 : .8}>
+            style={[disabled ? styles.containerDisabled : theme == 'default' ? styles.container : styles.containerDark, buttonStyle]} onPress={disabled ? null : onPress} activeOpacity={disabled ? 1 : .8}>
             <Image source={icon} />
             <Text style={[{ ...TEXT_NORMAL_REGULAR }, styles.text, textStyle]}>{text}</Text>
         </TouchableOpacity>

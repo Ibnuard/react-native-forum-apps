@@ -24,6 +24,12 @@ export const TEXT_LARGE_REGULAR = {
     fontWeight: 'normal'
 }
 
+export const TEXT_EXTRA_LARGE_REGULAR = {
+    color: Colors.COLOR_BLACK,
+    fontSize: TextStyle.FONT_SIZE_24,
+    fontWeight: 'normal'
+}
+
 export const TEXT_SMALL_BOLD = {
     color: Colors.COLOR_BLACK,
     fontSize: TextStyle.FONT_SIZE_12,
@@ -45,5 +51,11 @@ export const TEXT_MEDIUM_BOLD = {
 export const TEXT_LARGE_BOLD = {
     color: Colors.COLOR_BLACK,
     fontSize: TextStyle.FONT_SIZE_18,
+    fontWeight: 'bold'
+}
+
+export const TEXT_EXTRA_LARGE_BOLD = {
+    color: Colors.COLOR_BLACK,
+    fontSize: TextStyle.FONT_SIZE_24,
     fontWeight: 'bold'
 }

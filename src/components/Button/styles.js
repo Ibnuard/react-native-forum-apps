@@ -13,6 +13,17 @@ const styles = StyleSheet.create({
         borderRadius: 2
     },
 
+    containerDark: {
+        flexDirection: 'row',
+        width: '100%',
+        backgroundColor: Colors.COLOR_SECONDARY,
+        paddingHorizontal: Mixins.scaleSize(14),
+        paddingVertical: Mixins.scaleSize(12),
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 2
+    },
+
     containerDisabled: {
         flexDirection: 'row',
         width: '100%',

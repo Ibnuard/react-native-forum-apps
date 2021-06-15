@@ -11,12 +11,52 @@ import Header from '../components/Header/component';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Colors } from '../styles';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import SplashScreen from '../screens/SplashScreen';
+import TopicScreen from '../screens/TopicScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 //parent
+export const SplashStack = () => {
+    return (
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false
+            }}
+            initialRouteName={'Splash'}>
+            <Stack.Screen
+                name={'Splash'}
+                component={SplashScreen} />
+            <Stack.Screen
+                name={'AuthStack'}
+                component={AuthStack} />
+        </Stack.Navigator>
+    )
+}
+
+
+export const AuthStack = () => {
+    return (
+        <Stack.Navigator screenOptions={{
+            headerShown: false
+        }}>
+            <Stack.Screen
+                name={'Login'}
+                component={LoginScreen} />
+            <Stack.Screen
+                name={'Register'}
+                component={RegisterScreen} />
+            <Stack.Screen
+                name={'AppStack'}
+                component={AppNavigator} />
+        </Stack.Navigator>
+    )
+}
+
+
 export const AppNavigator = () => {
     return (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -44,25 +84,13 @@ export const AppNavigator = () => {
                 }} />
             <Tab.Screen
                 name="Topic"
-                component={ProfileScreen} />
+                component={TopicScreen} />
             <Tab.Screen
                 name="Profile"
-                component={ProfileScreen} />
+                component={ProfileScreen}
+                options={{
+                    headerShown: false,
+                }} />
         </Tab.Navigator>
-    )
-}
-
-export const AuthStack = () => {
-    return (
-        <Stack.Navigator screenOptions={{
-            headerShown: false
-        }}>
-            <Stack.Screen
-                name={'LoginScreen'}
-                component={LoginScreen} />
-            <Stack.Screen
-                name={'AppStack'}
-                component={AppNavigator} />
-        </Stack.Navigator>
     )
 }
