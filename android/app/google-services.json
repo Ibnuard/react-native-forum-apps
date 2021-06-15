@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "992419438996-0bq6656m3fdisjqrkl2di198p3e19ji8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.forum",
+            "certificate_hash": "21c97b5e1aa1d3cc017541aac5718adc12bee19d"
+          }
+        },
+        {
+          "client_id": "992419438996-okrcn45snfg6ag9ucdco4k1i8cug7shl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.forum",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "992419438996-nvdutfoq59f3h9e8m4mhdrscrkfosu3b.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +45,13 @@
             {
               "client_id": "992419438996-nvdutfoq59f3h9e8m4mhdrscrkfosu3b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "992419438996-rquputo6cqch50luddhi4l53aif2n25q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ardx.forumapps"
+              }
             }
           ]
         }

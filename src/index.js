@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
-import { AppNavigator } from './navigator/navigator'
-import LoginScreen from './screens/LoginScreen';
+import { AppNavigator, AuthStack } from './navigator/navigator'
 
 const AppStack = () => {
     return (
         <NavigationContainer>
-            <LoginScreen />
+            <AuthStack />
         </NavigationContainer>
     )
 }

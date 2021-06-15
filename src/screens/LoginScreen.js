@@ -3,25 +3,21 @@ import { View, Text, SafeAreaView, Image, StatusBar, TextInput } from 'react-nat
 import { IMAGES } from '../common/Images'
 import { Colors } from '../styles'
 import Screen from '../components/Screen/Component'
+import { TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD } from '../common/Typography'
+import Button from '../components/Button/Component'
+import styles from './styles/LoginScreen'
 
-const LoginScreen = () => {
-    const [email, setEmail] = React.useState('')
-    const [password, setPassword] = React.useState('')
+const LoginScreen = ({ navigation }) => {
     return (
-        <Screen style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 24 }}>
-            <Text>Login Screen</Text>
-            <TextInput
-                style={{ borderWidth: .25, width: '100%', height: 46, paddingHorizontal: 12, borderRadius: 16 }}
-                placeholder={'Email'}
-                keyboardType={'email-address'}
-                onChangeText={(text) => setEmail(text)}
-                value={email} />
-            <TextInput
-                style={{ borderWidth: .25, width: '100%', height: 46, paddingHorizontal: 12, borderRadius: 16 }}
-                placeholder={'Email'}
-                keyboardType={'email-address'}
-                onChangeText={(text) => setEmail(text)}
-                value={email} />
+        <Screen style={styles.container}>
+            <StatusBar backgroundColor={Colors.COLOR_PRIMARY} barStyle={'light-content'} />
+            <Image source={IMAGES.logoOrange} style={styles.logo} resizeMode={'contain'} />
+            <Button
+                text={'SignIn with Google'}
+                icon={IMAGES.google}
+                buttonStyle={styles.googleButton}
+                textStyle={[{ ...TEXT_NORMAL_BOLD }, styles.googleText]}
+                onPress={() => navigation.navigate('AppStack')} />
         </Screen>
     )
 }

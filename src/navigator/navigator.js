@@ -54,10 +54,15 @@ export const AppNavigator = () => {
 
 export const AuthStack = () => {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{
+            headerShown: false
+        }}>
             <Stack.Screen
                 name={'LoginScreen'}
                 component={LoginScreen} />
+            <Stack.Screen
+                name={'AppStack'}
+                component={AppNavigator} />
         </Stack.Navigator>
     )
 }
