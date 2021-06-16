@@ -28,13 +28,13 @@ const styles = StyleSheet.create({
         height: Mixins.scaleSize(28),
         width: Mixins.scaleSize(28),
         backgroundColor: 'gray',
-        borderRadius: 16
+        borderRadius: 10
     },
 
     imageSize: {
         height: Mixins.scaleSize(28),
         width: Mixins.scaleSize(28),
-        borderRadius: 16
+        borderRadius: 10
     },
 
     topLeftNameTime: {
@@ -72,6 +72,11 @@ const styles = StyleSheet.create({
 
     insightCount: {
         paddingLeft: Mixins.scaleSize(4)
+    },
+
+    textLiked: {
+        color: Colors.COLOR_RED,
+        fontWeight: 'bold'
     }
 
 })

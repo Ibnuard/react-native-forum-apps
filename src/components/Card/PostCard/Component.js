@@ -7,7 +7,35 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import styles from './styles'
 import moment from 'moment'
 
-const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress }) => {
+const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true }) => {
+    const liked = data?.likeUser.indexOf(user?.email)
+
+    /*
+    const [liked, setLiked] = React.useState(false)
+
+    React.useEffect(() => {
+        const subscriber = firestore()
+            .collection('Posts')
+            .doc(data?.id)
+            .collection('Likes')
+            .doc(user?.email)
+            .onSnapshot(documentSnapshot => {
+                if (documentSnapshot.exists) {
+                    setLiked(true)
+                } else {
+                    setLiked(false)
+                }
+            });
+
+        // Stop listening for updates when no longer required
+        return () => subscriber();
+    }, [data?.id]);
+
+    /*
+    React.useEffect(() => {
+        isLiked()
+    }, [])*/
+
     return (
         <View style={styles.container}>
 
@@ -26,16 +54,16 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
 
                 <View style={styles.topRightChild}>
                     <View style={styles.topRightLove}>
-                        <TouchableOpacity>
-                            <AntDesign name={'heart'} size={12} color={'red'} />
+                        <TouchableOpacity onPress={onLikePress}>
+                            <AntDesign name={'heart'} size={12} color={liked !== -1 ? Colors.COLOR_RED : Colors.COLOR_DARK_GRAY} />
                         </TouchableOpacity>
-                        <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.insightCount]}>{data?.likeCounts}</Text>
+                        <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.insightCount, liked == -1 ? null : styles.textLiked]}>{data?.likeCounts}</Text>
                     </View>
-                    <TouchableOpacity activeOpacity={.5} style={styles.topRightComment}>
+                    {showComment ? <TouchableOpacity onPress={onCommentPress} activeOpacity={.5} style={styles.topRightComment}>
                         <AntDesign name={'message1'} size={12} color={'blue'} />
                         <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.insightCount]}>{data?.commentCounts}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={.5} style={styles.topRightOption}>
+                    </TouchableOpacity> : null}
+                    <TouchableOpacity onPress={onOptionsPress} activeOpacity={.5} style={styles.topRightOption}>
                         <AntDesign name={'ellipsis1'} size={24} color={'gray'} />
                     </TouchableOpacity>
                 </View>

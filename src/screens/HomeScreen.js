@@ -10,22 +10,34 @@ import styles from './styles/HomeScreen'
 import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
+import { AuthContext } from '../store/Context'
+import { IS_LIKED_POST, LIKE_POST, POST_REFERENCE } from '../api/Firestore'
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
     const [post, setPost] = React.useState([])
-
-    const postRef = firestore().collection('Posts')
+    const { currentUser } = React.useContext(AuthContext)
 
     React.useEffect(() => {
-        return postRef.onSnapshot((querySnapshot) => {
+        return POST_REFERENCE.onSnapshot((querySnapshot) => {
             const list = [];
             querySnapshot.forEach(doc => {
-                const { title, description, timestamp, creatorName, creatorEmail, creatorProfilePic, likeCounts, commentCounts } = doc.data();
-                list.push({ id: doc.id, title, description, timestamp, creatorName, creatorEmail, creatorProfilePic, likeCounts, commentCounts });
+                list.push({ ...doc.data(), id: doc.id, });
             });
             setPost(_.reverse(list));
         });
     }, [])
+
+
+    async function toggleLike(id) {
+        console.log('like pressed')
+        await LIKE_POST(id, currentUser?.email)
+            .then(() => {
+                console.log('Sukes Like / Unlike');
+            })
+            .catch((err) => {
+                console.log('Err : ' + err);
+            })
+    }
 
     return (
         <Screen theme={'dark'}>
@@ -35,7 +47,14 @@ const HomeScreen = () => {
             </View>
             <FlatList
                 data={post}
-                renderItem={({ item, index }) => <PostCard data={item} onCardPress={() => console.log(item.title)} />} />
+                renderItem={({ item, index }) =>
+                    <PostCard
+                        data={item}
+                        user={currentUser}
+                        onLikePress={() => toggleLike(item?.id)}
+                        onOptionsPress={() => console.log('Options pressed')}
+                        onCardPress={() => navigation.navigate('Detail', { data: item })} />
+                } />
         </Screen>
     )
 }

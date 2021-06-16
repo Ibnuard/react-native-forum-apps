@@ -14,6 +14,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import SplashScreen from '../screens/SplashScreen';
 import TopicScreen from '../screens/TopicScreen';
+import DetailTopicScreen from '../screens/DetailTopicScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,7 +52,7 @@ export const AuthStack = () => {
                 component={RegisterScreen} />
             <Stack.Screen
                 name={'AppStack'}
-                component={AppNavigator} />
+                component={HomeFlow} />
         </Stack.Navigator>
     )
 }
@@ -95,5 +96,24 @@ export const AppNavigator = () => {
                     headerShown: false,
                 }} />
         </Tab.Navigator>
+    )
+}
+
+export const HomeFlow = () => {
+    return (
+        <Stack.Navigator>
+            <Tab.Screen
+                name="TabFlow"
+                component={AppNavigator}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Detail"
+                component={DetailTopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
+        </Stack.Navigator>
     )
 }

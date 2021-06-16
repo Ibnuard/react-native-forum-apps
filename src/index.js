@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
-import { AppNavigator, AuthStack, SplashStack } from './navigator/navigator'
+import { AppNavigator, AuthStack, SplashStack, HomeFlow } from './navigator/navigator'
 import { AuthContext } from './store/Context';
 
 const AppStack = () => {
@@ -42,7 +42,7 @@ const AppStack = () => {
                 {state.isLoading
                     ? <SplashStack />
                     : state.token !== null
-                        ? <AppNavigator />
+                        ? <HomeFlow />
                         : <AuthStack />}
             </NavigationContainer>
         </AuthContext.Provider>
