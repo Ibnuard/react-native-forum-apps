@@ -11,7 +11,7 @@ import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
+import { DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
 import { FAB } from 'react-native-paper'
 
 import RenderModal from '../components/Modal/Component';
@@ -54,24 +54,35 @@ const HomeScreen = ({ navigation }) => {
         await REPORT_POST(selectedPost?.id, currentUser?.email, selectedPost)
             .then(() => {
                 setShowMenu(false)
-                setModalType('popup')
                 setSnackBar(true)
             })
             .catch((err) => {
                 setShowMenu(false)
-                setModalType('popup')
                 console.log('err :' + err)
+            })
+    }
+
+    async function toggleDeletePost() {
+        setModalType('loading')
+        await DELETE_POST(selectedPost?.id)
+            .then(() => {
+                console.log('Delete Success!!');
+                setShowMenu(false)
+            })
+            .catch((err) => {
+                console.log('Delet failed!!')
+                setShowMenu(false)
             })
     }
 
     const menu = [
         {
-            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'See Posts',
+            text: 'See Posts',
             onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
         },
         {
-            text: 'Report',
-            onPress: () => toggleReport()
+            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
+            onPress: () => selectedPost?.creatorEmail == currentUser?.email ? toggleDeletePost() : toggleReport()
         },
         {
             text: 'Cancel',
@@ -94,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
                         data={item}
                         user={currentUser}
                         onLikePress={() => toggleLike(item?.id)}
-                        onOptionsPress={() => (setSelectedPost(item), setShowMenu(true))}
+                        onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                         onCommentPress={() => navigation.navigate('Detail', { data: item })}
                         onCardPress={() => navigation.navigate('Detail', { data: item })} />
                 } />

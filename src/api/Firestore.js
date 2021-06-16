@@ -102,3 +102,7 @@ export const REPORT_POST = async (id, email, topic) => {
             })
     }
 }
+
+export const DELETE_POST = async (id) => {
+    return POST_REFERENCE.doc(id).delete()
+}

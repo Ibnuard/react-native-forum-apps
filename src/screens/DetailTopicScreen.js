@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { View, Image, FlatList, StatusBar, TouchableOpacity, Text, TextInput, Keyboard, ScrollView } from 'react-native'
 import { IMAGES } from '../common/Images'
-import { Colors } from '../styles'
+import { Colors, Mixins } from '../styles'
 
 import Screen from '../components/Screen/Component'
 import PostCard from '../components/Card/PostCard/Component'
@@ -15,11 +15,14 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, LIKE_POST, POST_REFERENCE } from '../api/Firestore'
+import { COMMENT_POST, DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
 import Menu from '../components/Modal/Menu/Component'
+import Indicator from '../components/Modal/Indicator/Component'
+import { Snackbar } from 'react-native-paper'
+
 
 const DetailTopicScreen = ({ navigation, route }) => {
     const { currentUser } = React.useContext(AuthContext)
@@ -29,6 +32,8 @@ const DetailTopicScreen = ({ navigation, route }) => {
     const [comment, setComment] = React.useState('')
     const [commentList, setCommentList] = React.useState([])
     const [showMenu, setShowMenu] = React.useState(false)
+    const [modalType, setModalType] = React.useState('popup')
+    const [snackBar, setSnackBar] = React.useState(false)
 
     React.useEffect(() => {
         return POST_REFERENCE.doc(POST_DATA?.id).collection('Comments').orderBy('timestamp').onSnapshot((querySnapshot) => {
@@ -82,10 +87,38 @@ const DetailTopicScreen = ({ navigation, route }) => {
             })
     }
 
+    async function toggleReport() {
+        setModalType('loading')
+        await REPORT_POST(POST_DATA?.id, currentUser?.email, post)
+            .then(() => {
+                setShowMenu(false)
+                setSnackBar(true)
+            })
+            .catch((err) => {
+                setShowMenu(false)
+                console.log('err :' + err)
+            })
+    }
+
+    async function toggleDeletePost() {
+        setModalType('loading')
+        await DELETE_POST(POST_DATA.id)
+            .then(() => {
+                console.log('Delete Success!!');
+                setPost(POST_DATA)
+                setShowMenu(false)
+                navigation.goBack()
+            })
+            .catch((err) => {
+                console.log('Delet failed!!')
+                setShowMenu(false)
+            })
+    }
+
     const menu = [
         {
-            text: 'Report',
-            onPress: () => console.log('Report Pressed')
+            text: post?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
+            onPress: () => post?.creatorEmail == currentUser?.email ? toggleDeletePost() : toggleReport()
         },
         {
             text: 'Cancel',
@@ -106,6 +139,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
 
             <FlatList
                 data={commentList}
+                contentContainerStyle={{ paddingBottom: Mixins.scaleSize(82) }}
                 ListHeaderComponent={
                     <>
                         <PostCard
@@ -113,12 +147,12 @@ const DetailTopicScreen = ({ navigation, route }) => {
                             user={currentUser}
                             showComment={false}
                             onLikePress={() => toggleLike(POST_DATA?.id)}
-                            onOptionsPress={() => setShowMenu(true)}
+                            onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
                             onCardPress={() => null} />
 
                         <View style={styles.commentDivider}>
                             <Text style={{ ...TEXT_NORMAL_BOLD }}>Comment</Text>
-                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>  ●  {post.commentCounts == 0 ? 'No comments yet' : `${post?.commentCounts} comments`}</Text>
+                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>  ●  {post?.commentCounts == 0 ? 'No comments yet' : `${post?.commentCounts} comments`}</Text>
                         </View>
                     </>
                 }
@@ -138,8 +172,14 @@ const DetailTopicScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
             </View>
             <RenderModal visible={showMenu}>
-                <Menu item={menu} />
+                {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>
+            <Snackbar
+                visible={snackBar}
+                duration={3000}
+                onDismiss={() => setSnackBar(false)}>
+                Report success, Thanks for reporting!
+            </Snackbar>
         </Screen>
     )
 }
