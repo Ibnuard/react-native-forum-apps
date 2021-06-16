@@ -1,27 +1,25 @@
 import * as React from 'react'
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, TouchableOpacity } from 'react-native'
 import { IMAGES } from '../../../common/Images'
 import { TEXT_NORMAL, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../../../common/Typography'
 import { Colors } from '../../../styles'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import styles from './styles'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import moment from 'moment'
 
 const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress }) => {
-    console.log('post : ' + JSON.stringify(data.creatorProfilePic))
-
     return (
         <View style={styles.container}>
 
             <View style={styles.topParent}>
                 <View style={styles.topLeftChild}>
-                    <TouchableOpacity activeOpacity={.8} style={styles.topLeftChildContent} onPress={onProfilePress}>
+                    <TouchableOpacity activeOpacity={.6} style={styles.topLeftChildContent} onPress={onProfilePress}>
                         <View style={styles.topLeftProfieImage}>
                             <Image source={{ uri: data?.creatorProfilePic }} style={styles.imageSize} />
                         </View>
                         <View style={styles.topLeftNameTime}>
                             <Text style={TEXT_SMALL_BOLD}>{data?.creatorName}</Text>
-                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>{Date.parse(data?.timestamp)}</Text>
+                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>{moment(data?.timestamp).startOf().fromNow()}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -43,7 +41,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
                 </View>
             </View>
 
-            <TouchableOpacity activeOpacity={.8} onPress={onCardPress}>
+            <TouchableOpacity activeOpacity={.6} onPress={onCardPress}>
                 <Text style={TEXT_NORMAL_BOLD}>{data?.title}</Text>
                 <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.contentDesc]} numberOfLines={2}>
                     {data?.description}

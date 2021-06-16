@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { View, Text, SafeAreaView, Image, FlatList } from 'react-native'
+import { View, Image, FlatList, StatusBar } from 'react-native'
 import { IMAGES } from '../common/Images'
 import { Colors } from '../styles'
 
@@ -29,8 +29,9 @@ const HomeScreen = () => {
 
     return (
         <Screen theme={'dark'}>
-            <View style={{ backgroundColor: 'orange', padding: 14, justifyContent: 'center' }}>
-                <Image source={IMAGES.logo} style={{ height: 20, width: 80 }} />
+            <StatusBar backgroundColor={Colors.COLOR_PRIMARY} barStyle={'light-content'} />
+            <View style={styles.headerBar}>
+                <Image source={IMAGES.logo} style={styles.logo} resizeMode={'contain'} />
             </View>
             <FlatList
                 data={post}

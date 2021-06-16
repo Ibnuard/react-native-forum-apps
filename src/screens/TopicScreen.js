@@ -13,6 +13,7 @@ import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR } from '../common/Typography'
 //firebase
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
+import moment from 'moment'
 
 const TopicScreen = ({ navigation }) => {
     const [post, setPost] = React.useState({ title: '', description: '' })
@@ -27,7 +28,7 @@ const TopicScreen = ({ navigation }) => {
         const postStructure = {
             title: post.title,
             description: post.description,
-            timestamp: new Date(),
+            timestamp: moment().format(),
             creatorName: currentUser?.name,
             creatorEmail: currentUser?.email,
             creatorProfilePic: currentUser?.photoUrl,
