@@ -11,18 +11,21 @@ import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { LIKE_POST, POST_REFERENCE } from '../api/Firestore'
+import { LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
 import { FAB } from 'react-native-paper'
 
 import RenderModal from '../components/Modal/Component';
-import Indicator from '../components/Modal/Indicator/Component';
 import Menu from '../components/Modal/Menu/Component'
+import Indicator from '../components/Modal/Indicator/Component'
+import { Snackbar } from 'react-native-paper'
 
 const HomeScreen = ({ navigation }) => {
     const [post, setPost] = React.useState([])
     const { currentUser } = React.useContext(AuthContext)
     const [showMenu, setShowMenu] = React.useState(false)
     const [selectedPost, setSelectedPost] = React.useState([])
+    const [modalType, setModalType] = React.useState('popup')
+    const [snackBar, setSnackBar] = React.useState(false)
 
     React.useEffect(() => {
         return POST_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
@@ -46,14 +49,29 @@ const HomeScreen = ({ navigation }) => {
             })
     }
 
+    async function toggleReport() {
+        setModalType('loading')
+        await REPORT_POST(selectedPost?.id, currentUser?.email, selectedPost)
+            .then(() => {
+                setShowMenu(false)
+                setModalType('popup')
+                setSnackBar(true)
+            })
+            .catch((err) => {
+                setShowMenu(false)
+                setModalType('popup')
+                console.log('err :' + err)
+            })
+    }
+
     const menu = [
         {
-            text: 'See Post',
+            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'See Posts',
             onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
         },
         {
             text: 'Report',
-            onPress: () => console.log('Report Pressed')
+            onPress: () => toggleReport()
         },
         {
             text: 'Cancel',
@@ -70,6 +88,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
             <FlatList
                 data={post}
+                contentContainerStyle={styles.listSpacing}
                 renderItem={({ item, index }) =>
                     <PostCard
                         data={item}
@@ -80,6 +99,7 @@ const HomeScreen = ({ navigation }) => {
                         onCardPress={() => navigation.navigate('Detail', { data: item })} />
                 } />
             <FAB
+                visible={!showMenu && !snackBar}
                 style={styles.fab}
                 small
                 color={'white'}
@@ -87,8 +107,14 @@ const HomeScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('PostTopic')}
             />
             <RenderModal visible={showMenu}>
-                <Menu item={menu} />
+                {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>
+            <Snackbar
+                visible={snackBar}
+                duration={3000}
+                onDismiss={() => setSnackBar(false)}>
+                Report success, Thanks for reporting!
+            </Snackbar>
         </Screen>
     )
 }

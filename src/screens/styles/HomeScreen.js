@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
         margin: Mixins.scaleSize(24),
         right: 0,
         bottom: 0,
-    }
+    },
+
+    listSpacing: { paddingBottom: Mixins.scaleSize(72) }
 })
 
 export default styles

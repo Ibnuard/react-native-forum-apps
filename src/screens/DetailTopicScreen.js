@@ -18,6 +18,9 @@ import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD
 import { COMMENT_POST, LIKE_POST, POST_REFERENCE } from '../api/Firestore'
 import moment from 'moment'
 
+import RenderModal from '../components/Modal/Component';
+import Menu from '../components/Modal/Menu/Component'
+
 const DetailTopicScreen = ({ navigation, route }) => {
     const { currentUser } = React.useContext(AuthContext)
     const POST_DATA = route?.params?.data
@@ -25,6 +28,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
     const [post, setPost] = React.useState(POST_DATA)
     const [comment, setComment] = React.useState('')
     const [commentList, setCommentList] = React.useState([])
+    const [showMenu, setShowMenu] = React.useState(false)
 
     React.useEffect(() => {
         return POST_REFERENCE.doc(POST_DATA?.id).collection('Comments').orderBy('timestamp').onSnapshot((querySnapshot) => {
@@ -78,6 +82,18 @@ const DetailTopicScreen = ({ navigation, route }) => {
             })
     }
 
+    const menu = [
+        {
+            text: 'Report',
+            onPress: () => console.log('Report Pressed')
+        },
+        {
+            text: 'Cancel',
+            textStyle: { color: Colors.COLOR_RED },
+            onPress: () => setShowMenu(false)
+        },
+    ]
+
     return (
         <Screen theme={'dark'}>
             <StatusBar backgroundColor={Colors.COLOR_PRIMARY} barStyle={'light-content'} />
@@ -88,24 +104,25 @@ const DetailTopicScreen = ({ navigation, route }) => {
                 <Text style={[{ ...TEXT_LARGE_BOLD }, styles.title]}>Topic</Text>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
-                <PostCard
-                    data={post}
-                    user={currentUser}
-                    showComment={false}
-                    onLikePress={() => toggleLike(POST_DATA?.id)}
-                    onOptionsPress={() => console.log('Options pressed')}
-                    onCardPress={() => console.log('test')} />
+            <FlatList
+                data={commentList}
+                ListHeaderComponent={
+                    <>
+                        <PostCard
+                            data={post}
+                            user={currentUser}
+                            showComment={false}
+                            onLikePress={() => toggleLike(POST_DATA?.id)}
+                            onOptionsPress={() => setShowMenu(true)}
+                            onCardPress={() => null} />
 
-                <View style={styles.commentDivider}>
-                    <Text style={{ ...TEXT_NORMAL_BOLD }}>Comment</Text>
-                    <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>  ●  {post.commentCounts == 0 ? 'No comments yet' : `${post?.commentCounts} comments`}</Text>
-                </View>
-
-                <FlatList
-                    data={commentList}
-                    renderItem={({ item, index }) => <CommentCard data={item} />} />
-            </ScrollView>
+                        <View style={styles.commentDivider}>
+                            <Text style={{ ...TEXT_NORMAL_BOLD }}>Comment</Text>
+                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>  ●  {post.commentCounts == 0 ? 'No comments yet' : `${post?.commentCounts} comments`}</Text>
+                        </View>
+                    </>
+                }
+                renderItem={({ item, index }) => <CommentCard data={item} />} />
 
             <View style={styles.bottomContainer}>
                 <TextInput
@@ -120,7 +137,9 @@ const DetailTopicScreen = ({ navigation, route }) => {
                     <IonIcons name={'send'} size={20} color={comment.length ? Colors.COLOR_PRIMARY : Colors.COLOR_DARK_GRAY} />
                 </TouchableOpacity>
             </View>
-
+            <RenderModal visible={showMenu}>
+                <Menu item={menu} />
+            </RenderModal>
         </Screen>
     )
 }

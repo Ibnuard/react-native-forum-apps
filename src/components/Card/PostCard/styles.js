@@ -5,9 +5,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: Colors.COLOR_WHITE,
         paddingHorizontal: Mixins.scaleSize(12),
-        paddingTop: Mixins.scaleSize(14),
-        paddingBottom: Mixins.scaleSize(24),
-        marginBottom: .5
+        paddingVertical: Mixins.scaleSize(14),
     },
 
     topParent: {
@@ -48,6 +46,7 @@ const styles = StyleSheet.create({
     },
 
     topRightLove: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: Mixins.scaleSize(6)
@@ -75,6 +74,56 @@ const styles = StyleSheet.create({
     },
 
     textLiked: {
+        color: Colors.COLOR_RED,
+        fontWeight: 'bold'
+    },
+
+    centerContainer: {
+        padding: Mixins.scaleSize(6),
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white'
+    },
+
+    centerLike: {
+        paddingHorizontal: Mixins.scaleSize(4),
+        color: Colors.COLOR_DARK_GRAY
+    },
+
+    centerComment: {
+        paddingHorizontal: Mixins.scaleSize(4),
+        color: Colors.COLOR_DARK_GRAY
+    },
+
+    bottomContainer: {
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        padding: Mixins.scaleSize(12),
+        marginBottom: Mixins.scaleSize(4),
+        marginVertical: .5
+    },
+
+    bottomLikeContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        borderRightWidth: .25,
+        borderRightColor: Colors.COLOR_DARK_GRAY
+    },
+
+    bottomCommentContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+
+    bottomTextTitle: {
+        paddingHorizontal: Mixins.scaleSize(12)
+    },
+
+    textBoldRed: {
         color: Colors.COLOR_RED,
         fontWeight: 'bold'
     }

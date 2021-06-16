@@ -1,8 +1,10 @@
 import * as React from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
+import moment from 'moment'
 
 export const POST_REFERENCE = firestore().collection('Posts')
+export const REPORT_REFERENCE = firestore().collection('Report')
 
 export const LIKE_POST = async (id, email) => {
 
@@ -83,4 +85,20 @@ function onPostComment(postId) {
 export const COMMENT_POST = (id, user, comment) => {
     const topicChild = POST_REFERENCE.doc(id).collection('Comments')
     return topicChild.add({ ...comment, ...user }).then(() => onPostComment(id)).catch((err) => console.log(err))
+}
+
+export const REPORT_POST = async (id, email, topic) => {
+    const userPath = await REPORT_REFERENCE.doc(id).collection('ReportBy').doc(email).get()
+
+    if (userPath.exists) {
+        return REPORT_REFERENCE.doc(id).set(topic).then(() => console.log('Report Sukses')).catch((err) => console.log('Report Failed : ' + err))
+    } else {
+        return REPORT_REFERENCE.doc(id).collection('ReportBy').doc(email).set({ reportAt: moment().format() })
+            .then(() => {
+                REPORT_REFERENCE.doc(id).set(topic).then(() => console.log('Report Sukses')).catch((err) => console.log('Report Failed : ' + err))
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }
 }
