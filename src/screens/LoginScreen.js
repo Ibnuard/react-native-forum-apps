@@ -13,8 +13,12 @@ import auth from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
 
+import RenderModal from '../components/Modal/Component';
+import Indicator from '../components/Modal/Indicator/Component';
+
 const LoginScreen = ({ navigation }) => {
     const [user, setUser] = React.useState(null)
+    const [isLoading, setIsLoading] = React.useState(false)
 
     const { logIn } = React.useContext(AuthContext)
 
@@ -44,6 +48,7 @@ const LoginScreen = ({ navigation }) => {
     }
 
     async function handleLoginButton() {
+        setIsLoading(true)
         console.log('logged in....')
         await onGoogleButtonPress()
             .then((credential) => {
@@ -51,12 +56,14 @@ const LoginScreen = ({ navigation }) => {
                 setUser(user)
             })
             .catch((err) => {
+                setIsLoading(false)
                 console.log('Login with google failed! error : ' + err)
             })
     }
 
     async function isAlreadyRegistered(data) {
         const isUser = await firestore().collection('Users').doc(data?.email).get()
+        setIsLoading(false)
 
         if (!isUser.exists) {
             console.log('user not exist!');
@@ -78,6 +85,9 @@ const LoginScreen = ({ navigation }) => {
                 buttonStyle={styles.googleButton}
                 textStyle={[{ ...TEXT_NORMAL_BOLD }, styles.googleText]}
                 onPress={() => handleLoginButton()} />
+            <RenderModal visible={isLoading}>
+                <Indicator />
+            </RenderModal>
         </Screen>
     )
 }

@@ -13,7 +13,7 @@ const CommentCard = ({ data }) => {
             <Image source={{ uri: data?.photoUrl }} style={styles.avatar} />
             <View style={styles.rightContent}>
                 <Text style={{ ...TEXT_SMALL_BOLD }}>{data?.name}</Text>
-                <Text style={{ ...TEXT_MEDIUM_REGULAR }}>{data?.comment}</Text>
+                <Text style={{ ...TEXT_SMALL_REGULAR }}>{data?.comment}</Text>
                 <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.timestamp]}>{moment(data?.timestamp).startOf().fromNow()}</Text>
             </View>
         </View>

@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         flexDirection: 'row',
         padding: Mixins.scaleSize(12),
-        marginVertical: .8
+        marginVertical: .25
     },
 
     avatar: {

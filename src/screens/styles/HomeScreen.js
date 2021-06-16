@@ -11,6 +11,14 @@ const styles = StyleSheet.create({
     logo: {
         height: Mixins.scaleSize(20),
         width: Mixins.scaleSize(80)
+    },
+
+    fab: {
+        backgroundColor: Colors.COLOR_PRIMARY,
+        position: 'absolute',
+        margin: Mixins.scaleSize(24),
+        right: 0,
+        bottom: 0,
     }
 })
 

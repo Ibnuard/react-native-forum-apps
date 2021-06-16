@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, BackHandler, Keyboard } from 'react-native'
 import { IMAGES } from '../common/Images'
 import { Colors } from '../styles'
 
@@ -14,6 +14,9 @@ import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR } from '../common/Typography'
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
 import moment from 'moment'
+import { useFocusEffect } from '@react-navigation/native'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import styles from './styles/TopicScreen'
 
 const TopicScreen = ({ navigation }) => {
     const [post, setPost] = React.useState({ title: '', description: '' })
@@ -24,6 +27,7 @@ const TopicScreen = ({ navigation }) => {
 
     async function sendPost() {
         setIsLoading(true)
+        Keyboard.dismiss()
 
         const postStructure = {
             title: post.title,
@@ -33,7 +37,8 @@ const TopicScreen = ({ navigation }) => {
             creatorEmail: currentUser?.email,
             creatorProfilePic: currentUser?.photoUrl,
             likeCounts: 0,
-            commentCounts: 0
+            commentCounts: 0,
+            likeUser: []
         }
 
         await postRef
@@ -42,7 +47,7 @@ const TopicScreen = ({ navigation }) => {
                 console.log('Posted!!');
                 setIsLoading(false)
                 setPost({ title: '', description: '' })
-                navigation.jumpTo('Home')
+                navigation.goBack()
             })
             .catch((err) => {
                 console.log('error: ' + err)
@@ -51,8 +56,11 @@ const TopicScreen = ({ navigation }) => {
 
     return (
         <>
-            <View style={{ backgroundColor: 'orange', padding: 14, justifyContent: 'center' }}>
-                <Text style={{ ...TEXT_LARGE_BOLD, color: 'white' }}>Create Topic</Text>
+            <View style={styles.header}>
+                <TouchableOpacity activeOpacity={.6} onPress={() => navigation.goBack()}>
+                    <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
+                </TouchableOpacity>
+                <Text style={[{ ...TEXT_LARGE_BOLD }, styles.title]}>Create Topic</Text>
             </View>
             <Screen style={{ padding: 24 }}>
                 <View style={{ flex: 1 }}>

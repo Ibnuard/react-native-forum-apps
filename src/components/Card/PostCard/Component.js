@@ -8,7 +8,7 @@ import styles from './styles'
 import moment from 'moment'
 
 const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true }) => {
-    const liked = data?.likeUser.indexOf(user?.email)
+    const liked = data?.likeUser?.indexOf(user?.email)
 
     /*
     const [liked, setLiked] = React.useState(false)
@@ -71,9 +71,12 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
 
             <TouchableOpacity activeOpacity={.6} onPress={onCardPress}>
                 <Text style={TEXT_NORMAL_BOLD}>{data?.title}</Text>
-                <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.contentDesc]} numberOfLines={2}>
+                {showComment ? <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.contentDesc]} numberOfLines={3}>
                     {data?.description}
-                </Text>
+                </Text> :
+                    <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.contentDesc]}>
+                        {data?.description}
+                    </Text>}
             </TouchableOpacity>
         </View>
     )

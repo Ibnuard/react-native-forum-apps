@@ -84,12 +84,6 @@ export const AppNavigator = () => {
                     headerShown: false,
                 }} />
             <Tab.Screen
-                name="Topic"
-                component={TopicScreen}
-                options={{
-                    headerShown: false,
-                }} />
-            <Tab.Screen
                 name="Profile"
                 component={ProfileScreen}
                 options={{
@@ -111,6 +105,12 @@ export const HomeFlow = () => {
             <Tab.Screen
                 name="Detail"
                 component={DetailTopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="PostTopic"
+                component={TopicScreen}
                 options={{
                     headerShown: false,
                 }} />

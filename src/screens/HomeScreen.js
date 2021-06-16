@@ -11,14 +11,21 @@ import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { IS_LIKED_POST, LIKE_POST, POST_REFERENCE } from '../api/Firestore'
+import { LIKE_POST, POST_REFERENCE } from '../api/Firestore'
+import { FAB } from 'react-native-paper'
+
+import RenderModal from '../components/Modal/Component';
+import Indicator from '../components/Modal/Indicator/Component';
+import Menu from '../components/Modal/Menu/Component'
 
 const HomeScreen = ({ navigation }) => {
     const [post, setPost] = React.useState([])
     const { currentUser } = React.useContext(AuthContext)
+    const [showMenu, setShowMenu] = React.useState(false)
+    const [selectedPost, setSelectedPost] = React.useState([])
 
     React.useEffect(() => {
-        return POST_REFERENCE.onSnapshot((querySnapshot) => {
+        return POST_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
             const list = [];
             querySnapshot.forEach(doc => {
                 list.push({ ...doc.data(), id: doc.id, });
@@ -39,6 +46,22 @@ const HomeScreen = ({ navigation }) => {
             })
     }
 
+    const menu = [
+        {
+            text: 'See Post',
+            onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
+        },
+        {
+            text: 'Report',
+            onPress: () => console.log('Report Pressed')
+        },
+        {
+            text: 'Cancel',
+            textStyle: { color: Colors.COLOR_RED },
+            onPress: () => (setShowMenu(false), setSelectedPost([]))
+        },
+    ]
+
     return (
         <Screen theme={'dark'}>
             <StatusBar backgroundColor={Colors.COLOR_PRIMARY} barStyle={'light-content'} />
@@ -52,9 +75,20 @@ const HomeScreen = ({ navigation }) => {
                         data={item}
                         user={currentUser}
                         onLikePress={() => toggleLike(item?.id)}
-                        onOptionsPress={() => console.log('Options pressed')}
+                        onOptionsPress={() => (setSelectedPost(item), setShowMenu(true))}
+                        onCommentPress={() => navigation.navigate('Detail', { data: item })}
                         onCardPress={() => navigation.navigate('Detail', { data: item })} />
                 } />
+            <FAB
+                style={styles.fab}
+                small
+                color={'white'}
+                icon="plus"
+                onPress={() => navigation.navigate('PostTopic')}
+            />
+            <RenderModal visible={showMenu}>
+                <Menu item={menu} />
+            </RenderModal>
         </Screen>
     )
 }

@@ -4,17 +4,26 @@ import Screen from '../components/Screen/Component'
 import { Colors } from '../styles'
 import styles from './styles/RegisterScreen'
 import Button from '../components/Button/Component'
-import { TEXT_EXTRA_LARGE_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR } from '../common/Typography'
+import { TEXT_EXTRA_LARGE_BOLD, TEXT_NORMAL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
+
+import RenderModal from '../components/Modal/Component';
+import Indicator from '../components/Modal/Indicator/Component';
 
 const RegisterScreen = ({ navigation, route }) => {
     const data = route?.params?.data
     const [username, setUsername] = React.useState(data?.displayName)
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [error, setError] = React.useState('')
 
     const { logIn } = React.useContext(AuthContext)
 
     async function registeredNewuser() {
+
+        setError('')
+        setIsLoading(true)
+
         await firestore()
             .collection('Users')
             .doc(data?.email)
@@ -30,9 +39,12 @@ const RegisterScreen = ({ navigation, route }) => {
                     email: data?.email,
                     photoUrl: data?.photoURL,
                 }
+                setIsLoading(false)
                 logIn(user)
             })
             .catch((err) => {
+                setIsLoading(false)
+                setError(err)
                 console.log('Erorr adding data : ' + JSON.stringify(err));
             })
     }
@@ -46,10 +58,14 @@ const RegisterScreen = ({ navigation, route }) => {
                 style={[{ ...TEXT_NORMAL_BOLD }, styles.input]}
                 value={username}
                 onChangeText={(text) => setUsername(text)} />
+            {error.length ? <Text style={[{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_RED }]}>* {error}</Text> : null}
 
             <View style={styles.buttonContainer}>
                 <Button disabled={!username.length} text={'Continue'} onPress={() => registeredNewuser()} />
             </View>
+            <RenderModal visible={isLoading}>
+                <Indicator />
+            </RenderModal>
         </Screen>
     )
 }
