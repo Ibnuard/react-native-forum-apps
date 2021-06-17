@@ -12,9 +12,14 @@ const styles = StyleSheet.create({
     headerBar: {
         backgroundColor: Colors.COLOR_PRIMARY,
         padding: Mixins.scaleSize(14),
-        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         borderBottomColor: Colors.COLOR_LIGHT_GRAY,
         borderBottomWidth: .25
+    },
+
+    backButton: {
+        paddingRight: Mixins.scaleSize(8)
     },
 
     info: { flexDirection: 'row', paddingTop: Mixins.scaleSize(8), marginBottom: Mixins.scaleSize(14) },
@@ -27,7 +32,7 @@ const styles = StyleSheet.create({
     listSpacing: { paddingBottom: Mixins.scaleSize(72) },
 
     email: {
-        color: Colors.COLOR_LIGHT_GRAY
+        color: Colors.COLOR_LIGHT_GRAY,
     }
 })
 

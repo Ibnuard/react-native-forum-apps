@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { View, Text, FlatList } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import Screen from '../components/Screen/Component'
 import Button from '../components/Button/Component'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -13,13 +13,14 @@ import Menu from '../components/Modal/Menu/Component'
 import Indicator from '../components/Modal/Indicator/Component'
 import { Snackbar } from 'react-native-paper'
 
-import { DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
-import { Colors } from '../styles';
+import { DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_POST, USER_REFERENCE } from '../api/Firestore'
+import { Colors, Mixins } from '../styles';
 
 import PostCard from '../components/Card/PostCard/Component'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import _ from 'lodash'
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [totalPost, setTotalPost] = React.useState(0)
     const [post, setPost] = React.useState([])
@@ -27,6 +28,10 @@ const ProfileScreen = ({ navigation }) => {
     const [selectedPost, setSelectedPost] = React.useState([])
     const [modalType, setModalType] = React.useState('popup')
     const [snackBar, setSnackBar] = React.useState(false)
+
+    const [userData, setUserData] = React.useState([])
+
+    const isFromHome = route?.params?.data
 
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -40,13 +45,30 @@ const ProfileScreen = ({ navigation }) => {
     const { logOut, currentUser } = React.useContext(AuthContext)
 
     async function getUserData() {
-        await POST_REFERENCE
-            .where('creatorEmail', '==', currentUser?.email)
-            .get()
-            .then((querySnapshot) => {
-                console.log('size : ' + querySnapshot.size)
-                setTotalPost(querySnapshot.size)
-            })
+
+        if (isFromHome) {
+            await POST_REFERENCE
+                .where('creatorEmail', '==', isFromHome?.creatorEmail)
+                .get()
+                .then((querySnapshot) => {
+                    console.log('size : ' + querySnapshot.size)
+                    setTotalPost(querySnapshot.size)
+                })
+
+            const data = await USER_REFERENCE.doc(isFromHome?.creatorEmail).get()
+            setUserData(data.data())
+        } else {
+            await POST_REFERENCE
+                .where('creatorEmail', '==', currentUser?.email)
+                .get()
+                .then((querySnapshot) => {
+                    console.log('size : ' + querySnapshot.size)
+                    setTotalPost(querySnapshot.size)
+                })
+
+            const data = await USER_REFERENCE.doc(currentUser?.email).get()
+            setUserData(data.data())
+        }
     }
 
     React.useEffect(() => {
@@ -57,12 +79,12 @@ const ProfileScreen = ({ navigation }) => {
             });
 
             const filtered = list.filter(function (item) {
-                return item.creatorEmail == currentUser?.email
+                return item.creatorEmail == userData?.email
             })
 
             setPost(_.reverse(filtered));
         });
-    }, [])
+    }, [userData?.email])
 
     async function handleLogout() {
         setIsLoading(true)
@@ -134,21 +156,24 @@ const ProfileScreen = ({ navigation }) => {
     return (
         <Screen theme={'dark'}>
             <View style={styles.headerBar}>
-                <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{currentUser?.email}</Text>
+                {isFromHome ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
+                    <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
+                </TouchableOpacity> : null}
+                <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{userData?.email ?? '-'}</Text>
             </View>
             <View style={styles.topContainer}>
-                <Avatar.Image size={48} source={{ uri: currentUser?.photoUrl }} />
+                <Avatar.Image size={48} source={{ uri: userData?.photoUrl }} />
                 <View style={styles.info}>
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{currentUser?.name} | </Text>
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{userData?.name ?? 'Loading...'} | </Text>
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
                 </View>
-                <Button
+                {!isFromHome ? <Button
                     buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '50%' }}
                     textStyle={{ color: Colors.COLOR_PRIMARY }}
                     text='Logout'
-                    onPress={() => handleLogout()} />
+                    onPress={() => handleLogout()} /> : null}
             </View>
-            <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: 12, marginVertical: .25 }}>
+            <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: Mixins.scaleSize(12), marginVertical: .25 }}>
                 <Text style={{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_WHITE }}>{totalPost == 0 ? 'No Post Yet!' : totalPost >= 2 ? 'My Posts' : 'My Post'}</Text>
             </View>
 
@@ -167,6 +192,12 @@ const ProfileScreen = ({ navigation }) => {
             <RenderModal visible={showMenu}>
                 {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>
+            <Snackbar
+                visible={snackBar}
+                duration={3000}
+                onDismiss={() => setSnackBar(false)}>
+                Report success, Thanks for reporting!
+            </Snackbar>
         </Screen>
     )
 }

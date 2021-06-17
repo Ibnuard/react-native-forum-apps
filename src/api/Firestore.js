@@ -5,6 +5,7 @@ import moment from 'moment'
 
 export const POST_REFERENCE = firestore().collection('Posts')
 export const REPORT_REFERENCE = firestore().collection('Report')
+export const USER_REFERENCE = firestore().collection('Users')
 
 export const LIKE_POST = async (id, email) => {
 

@@ -113,6 +113,7 @@ const HomeScreen = ({ navigation }) => {
                             data={item}
                             user={currentUser}
                             onLikePress={() => toggleLike(item?.id)}
+                            onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                             onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                             onCommentPress={() => navigation.navigate('Detail', { data: item })}
                             onCardPress={() => navigation.navigate('Detail', { data: item })} />
