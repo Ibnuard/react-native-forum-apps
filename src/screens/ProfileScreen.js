@@ -174,7 +174,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     onPress={() => handleLogout()} /> : null}
             </View>
             <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: Mixins.scaleSize(12), marginVertical: .25 }}>
-                <Text style={{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_WHITE }}>{totalPost == 0 ? 'No Post Yet!' : totalPost >= 2 ? 'My Posts' : 'My Post'}</Text>
+                <Text style={{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_WHITE }}>{totalPost == 0 ? 'No Post Yet!' : totalPost >= 2 ? 'Posts' : 'Post'}</Text>
             </View>
 
             <FlatList

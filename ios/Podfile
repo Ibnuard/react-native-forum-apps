@@ -15,6 +15,8 @@ target 'Forum' do
   # pods
   pod 'Firebase/Analytics'
 
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
   target 'ForumTests' do
     inherit! :complete
     # Pods for testing

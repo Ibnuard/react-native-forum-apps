@@ -107,3 +107,19 @@ export const REPORT_POST = async (id, email, topic) => {
 export const DELETE_POST = async (id) => {
     return POST_REFERENCE.doc(id).delete()
 }
+
+async function updateProfileImage(email, newProfilePic) {
+    // Get all users
+    const usersQuerySnapshot = await firestore().collection('Post').where('creatorEmail', '==', email).get();
+
+    // Create a new batch instance
+    const batch = firestore().batch();
+
+    usersQuerySnapshot.forEach(documentSnapshot => {
+        batch.update(documentSnapshot.ref, {
+            creatorProfilePic: profilePic
+        })
+    });
+
+    return batch.commit();
+}

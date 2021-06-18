@@ -163,7 +163,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
                     style={styles.inputStyle}
                     placeholderTextColor={Colors.COLOR_DARK_GRAY}
                     placeholder={'Enter your comment...'}
-                    multiline={true}
+                    multiline={false}
                     maxLength={100}
                     onChangeText={(text) => setComment(text)}
                     value={comment} />
