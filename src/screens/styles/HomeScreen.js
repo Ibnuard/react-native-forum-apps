@@ -21,6 +21,16 @@ const styles = StyleSheet.create({
         bottom: 0,
     },
 
+    noPost: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    noPostText: {
+        paddingVertical: Mixins.scaleSize(12)
+    },
+
     listSpacing: { paddingBottom: Mixins.scaleSize(72) }
 })
 

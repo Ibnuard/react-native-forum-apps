@@ -95,7 +95,9 @@ export const AppNavigator = () => {
 
 export const HomeFlow = () => {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{
+            animationTypeForReplace: 'push'
+        }}>
             <Tab.Screen
                 name="TabFlow"
                 component={AppNavigator}
@@ -105,6 +107,12 @@ export const HomeFlow = () => {
             <Tab.Screen
                 name="Detail"
                 component={DetailTopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="ProfileDetail"
+                component={ProfileScreen}
                 options={{
                     headerShown: false,
                 }} />

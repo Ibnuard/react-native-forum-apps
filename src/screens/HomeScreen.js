@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { View, Image, FlatList, StatusBar } from 'react-native'
+import { View, Image, FlatList, StatusBar, Text } from 'react-native'
 import { IMAGES } from '../common/Images'
 import { Colors } from '../styles'
 
@@ -11,13 +11,16 @@ import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
+import { deleteQueryBatch, DELETE_POST, GET_IMAGE_BANNER, IMAGE_REFERENCE, LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
 import { FAB } from 'react-native-paper'
 
 import RenderModal from '../components/Modal/Component';
 import Menu from '../components/Modal/Menu/Component'
 import Indicator from '../components/Modal/Indicator/Component'
 import { Snackbar } from 'react-native-paper'
+import { TEXT_MEDIUM_BOLD } from '../common/Typography'
+
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 const HomeScreen = ({ navigation }) => {
     const [post, setPost] = React.useState([])
@@ -26,6 +29,7 @@ const HomeScreen = ({ navigation }) => {
     const [selectedPost, setSelectedPost] = React.useState([])
     const [modalType, setModalType] = React.useState('popup')
     const [snackBar, setSnackBar] = React.useState(false)
+    const [banner, setBanner] = React.useState([])
 
     React.useEffect(() => {
         return POST_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
@@ -36,6 +40,15 @@ const HomeScreen = ({ navigation }) => {
             setPost(_.reverse(list));
         });
     }, [])
+
+    React.useEffect(() => {
+        getBanner()
+    }, [])
+
+    async function getBanner() {
+        const banner = await GET_IMAGE_BANNER()
+        setBanner(banner?.imageUrl)
+    }
 
 
     async function toggleLike(id) {
@@ -54,24 +67,46 @@ const HomeScreen = ({ navigation }) => {
         await REPORT_POST(selectedPost?.id, currentUser?.email, selectedPost)
             .then(() => {
                 setShowMenu(false)
-                setModalType('popup')
                 setSnackBar(true)
             })
             .catch((err) => {
                 setShowMenu(false)
-                setModalType('popup')
                 console.log('err :' + err)
+            })
+    }
+
+    async function toggleDeletePost() {
+        setModalType('loading')
+        /*
+        await DELETE_POST(selectedPost?.id)
+            .then(() => {
+                console.log('Delete Success!!');
+                setShowMenu(false)
+            })
+            .catch((err) => {
+                console.log('Delet failed!!')
+                setShowMenu(false)
+            })
+            */
+        await deleteQueryBatch(selectedPost?.id)
+            .then(() => {
+                setShowMenu(false)
+                console.log('Delete Sukses!')
+            })
+            .catch((err) => {
+                setShowMenu(false)
+                console.log('Delete Failed : ' + err)
             })
     }
 
     const menu = [
         {
-            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'See Posts',
+            text: 'See Posts',
             onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
         },
         {
-            text: 'Report',
-            onPress: () => toggleReport()
+            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
+            onPress: () => selectedPost?.creatorEmail == currentUser?.email ? toggleDeletePost() : toggleReport()
         },
         {
             text: 'Cancel',
@@ -86,18 +121,28 @@ const HomeScreen = ({ navigation }) => {
             <View style={styles.headerBar}>
                 <Image source={IMAGES.logo} style={styles.logo} resizeMode={'contain'} />
             </View>
-            <FlatList
-                data={post}
-                contentContainerStyle={styles.listSpacing}
-                renderItem={({ item, index }) =>
-                    <PostCard
-                        data={item}
-                        user={currentUser}
-                        onLikePress={() => toggleLike(item?.id)}
-                        onOptionsPress={() => (setSelectedPost(item), setShowMenu(true))}
-                        onCommentPress={() => navigation.navigate('Detail', { data: item })}
-                        onCardPress={() => navigation.navigate('Detail', { data: item })} />
-                } />
+            {!post.length ?
+                <View style={styles.noPost}>
+                    <AntDesign name={'frowno'} size={60} color={Colors.COLOR_DARK_GRAY} />
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_DARK_GRAY }, styles.noPostText]}>No Post Yet!</Text>
+                </View> :
+                <FlatList
+                    data={post}
+                    contentContainerStyle={styles.listSpacing}
+                    renderItem={({ item, index }) =>
+                        <>
+                            <PostCard
+                                data={item}
+                                user={currentUser}
+                                onLikePress={() => toggleLike(item?.id)}
+                                onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
+                                onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
+                                onCommentPress={() => navigation.navigate('Detail', { data: item })}
+                                onCardPress={() => navigation.navigate('Detail', { data: item })} />
+                            {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: banner[0] }} resizeMode={'stretch'} style={{ width: '100%', height: 128 }} /> : null}
+                        </>
+                    } />
+            }
             <FAB
                 visible={!showMenu && !snackBar}
                 style={styles.fab}

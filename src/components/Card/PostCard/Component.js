@@ -67,6 +67,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
                         <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.contentDesc]}>
                             {data?.description}
                         </Text>}
+                    {data?.banner ? <Image source={{ uri: `data:image/jpeg;base64,${data?.banner}` }} style={{ width: '100%', height: 256, borderRadius: 12 }} resizeMode={'cover'} /> : null}
                 </TouchableOpacity>
             </View>
             <View style={styles.centerContainer}>
