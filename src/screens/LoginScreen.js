@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { Image, StatusBar } from 'react-native'
+import { Image, StatusBar, TextInput, View, Text, TouchableOpacity } from 'react-native'
 import { IMAGES } from '../common/Images'
-import { Colors } from '../styles'
+import { Colors, Mixins } from '../styles'
 import Screen from '../components/Screen/Component'
-import { TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD } from '../common/Typography'
+import { TEXT_EXTRA_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR, TEXT_SMALL_BOLD } from '../common/Typography'
 import Button from '../components/Button/Component'
 import styles from './styles/LoginScreen'
 
@@ -15,10 +15,16 @@ import { AuthContext } from '../store/Context'
 
 import RenderModal from '../components/Modal/Component';
 import Indicator from '../components/Modal/Indicator/Component';
+import Input from '../components/Input/Component'
+import { validateEmail } from '../utils/utils'
 
 const LoginScreen = ({ navigation }) => {
     const [user, setUser] = React.useState(null)
     const [isLoading, setIsLoading] = React.useState(false)
+    const [email, setEmail] = React.useState('')
+    const [password, setPassword] = React.useState('')
+    const [emailError, setEmailError] = React.useState('')
+    const [passwordError, setPasswordError] = React.useState('')
 
     const { logIn } = React.useContext(AuthContext)
 
@@ -67,18 +73,95 @@ const LoginScreen = ({ navigation }) => {
 
         if (!isUser.exists) {
             console.log('user not exist!');
-            navigation.navigate('Register', { data: data })
+            navigation.navigate('Register', { data: data, pass: password })
         } else {
             console.log('User exist!');
             logIn(isUser.data())
         }
     }
 
+    function onEmailBlur() {
+        validateEmail(email) ? setEmailError('') : setEmailError('Email not valid!')
+    }
+
+    function onPasswordBlur() {
+        password.length >= 6 ? setPasswordError('') : setPasswordError('Password must consist of at least 6 characters')
+    }
+
+    async function onLogin() {
+        setIsLoading(true)
+        console.log('Loggin.....');
+        await auth()
+            .signInWithEmailAndPassword(email, password)
+            .then((credential) => {
+                if (credential) {
+                    setIsLoading(false)
+                    isAlreadyRegistered(credential?.user)
+                }
+            })
+            .catch((err) => {
+                setIsLoading(false)
+                alert(err.message)
+            })
+    }
+
+    /**
+     * 
+     * GAP BETWEEN RENDER 
+     * 
+     */
+
+    function renderEmailInput() {
+        return (
+            <Input
+                placeholder={'Input Email'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                numberOfLines={1}
+                onBlur={() => onEmailBlur()}
+                keyboardType={'email-address'}
+                errorMessage={emailError}
+                value={email}
+                onChangeText={(val) => setEmail(val)} />
+        )
+    }
+
+    function renderPasswordInput() {
+        const [showPassword, setShowPassword] = React.useState(true)
+        return (
+            <Input
+                placeholder={'Input Password'}
+                placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                numberOfLines={1}
+                isPassword={showPassword}
+                onBlur={() => onPasswordBlur()}
+                errorMessage={passwordError}
+                onEyePress={() => setShowPassword(!showPassword)}
+                showEye
+                value={password}
+                onChangeText={(val) => setPassword(val)} />
+        )
+    }
+
 
     return (
-        <Screen style={styles.container}>
+        <View style={styles.container}>
             <StatusBar backgroundColor={Colors.COLOR_PRIMARY} barStyle={'light-content'} />
-            <Image source={IMAGES.logoOrange} style={styles.logo} resizeMode={'contain'} />
+            <Text style={{ ...TEXT_EXTRA_LARGE_BOLD, alignSelf: 'flex-start', color: Colors.COLOR_BLACK }}>Welcome!</Text>
+            <Text style={{ ...TEXT_NORMAL_REGULAR, alignSelf: 'flex-start', color: Colors.COLOR_DARK_GRAY, marginBottom: Mixins.scaleSize(24) }}>Login with your username and password</Text>
+            {renderEmailInput()}
+            {renderPasswordInput()}
+            <Button
+                text={'Login'}
+                disabled={!email.length || !password.length || emailError.length || passwordError.length}
+                buttonStyle={{ marginVertical: Mixins.scaleSize(24), height: Mixins.scaleSize(44), borderRadius: 6 }}
+                onPress={() => onLogin()} />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ ...TEXT_NORMAL_REGULAR, color: Colors.COLOR_BLACK }}>Don't have account? </Text>
+                <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('SignUp')}>
+                    <Text style={{ ...TEXT_NORMAL_BOLD, color: Colors.COLOR_SECONDARY }}>Register</Text>
+                </TouchableOpacity>
+            </View>
+            <Text style={{ ...TEXT_NORMAL_REGULAR, color: Colors.COLOR_BLACK, paddingVertical: Mixins.scaleSize(18) }}>Or</Text>
             <Button
                 text={'SignIn with Google'}
                 icon={IMAGES.google}
@@ -88,7 +171,7 @@ const LoginScreen = ({ navigation }) => {
             <RenderModal visible={isLoading}>
                 <Indicator />
             </RenderModal>
-        </Screen>
+        </View>
     )
 }
 

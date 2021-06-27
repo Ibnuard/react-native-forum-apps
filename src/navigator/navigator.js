@@ -15,6 +15,8 @@ import RegisterScreen from '../screens/RegisterScreen';
 import SplashScreen from '../screens/SplashScreen';
 import TopicScreen from '../screens/TopicScreen';
 import DetailTopicScreen from '../screens/DetailTopicScreen';
+import SignUpScreen from '../screens/SignUpScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -47,6 +49,9 @@ export const AuthStack = () => {
             <Stack.Screen
                 name={'Login'}
                 component={LoginScreen} />
+            <Stack.Screen
+                name={'SignUp'}
+                component={SignUpScreen} />
             <Stack.Screen
                 name={'Register'}
                 component={RegisterScreen} />
@@ -98,25 +103,31 @@ export const HomeFlow = () => {
         <Stack.Navigator screenOptions={{
             animationTypeForReplace: 'push'
         }}>
-            <Tab.Screen
+            <Stack.Screen
                 name="TabFlow"
                 component={AppNavigator}
                 options={{
                     headerShown: false,
                 }} />
-            <Tab.Screen
+            <Stack.Screen
                 name="Detail"
                 component={DetailTopicScreen}
                 options={{
                     headerShown: false,
                 }} />
-            <Tab.Screen
+            <Stack.Screen
                 name="ProfileDetail"
                 component={ProfileScreen}
                 options={{
                     headerShown: false,
                 }} />
-            <Tab.Screen
+            <Stack.Screen
+                name="EditProfile"
+                component={EditProfileScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Stack.Screen
                 name="PostTopic"
                 component={TopicScreen}
                 options={{

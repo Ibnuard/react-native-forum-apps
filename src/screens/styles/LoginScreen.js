@@ -3,9 +3,10 @@ import { Colors, Mixins } from '../../styles'
 
 const styles = StyleSheet.create({
     container: {
-        justifyContent: 'center',
+        flex: 1,
         alignItems: 'center',
-        backgroundColor: Colors.COLOR_PRIMARY,
+        justifyContent: 'center',
+        backgroundColor: Colors.COLOR_WHITE,
         paddingHorizontal: Mixins.scaleSize(24)
     },
 
@@ -21,7 +22,8 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: '100%',
+        width: '54%',
+        alignSelf: 'flex-start',
         height: Mixins.scaleSize(120),
         marginBottom: Mixins.scaleSize(32)
     }

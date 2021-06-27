@@ -43,7 +43,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
                     <View style={styles.topLeftChild}>
                         <TouchableOpacity activeOpacity={.6} style={styles.topLeftChildContent} onPress={onProfilePress}>
                             <View style={styles.topLeftProfieImage}>
-                                <Image source={{ uri: data?.creatorProfilePic }} style={styles.imageSize} />
+                                <Image source={{ uri: 'data:image/jpeg;base64,' + data?.creatorProfilePic }} style={styles.imageSize} />
                             </View>
                             <View style={styles.topLeftNameTime}>
                                 <Text style={TEXT_SMALL_BOLD}>{data?.creatorName}</Text>

@@ -13,7 +13,7 @@ const CommentCard = ({ data, isSelected = false, onPress, email, onButtonPrees, 
         <>
             <TouchableOpacity style={[styles.container, isSelected ? styles.containerSelected : null]} activeOpacity={.7} onPress={onPress}>
                 <TouchableOpacity activeOpacity={.7} onPress={onProfilePress}>
-                    <Image source={{ uri: data?.photoUrl }} style={styles.avatar} />
+                    <Image source={{ uri: 'data:image/jpeg;base64,' + data?.photoUrl }} style={styles.avatar} />
                 </TouchableOpacity>
                 <View style={styles.rightContent}>
                     <Text style={{ ...TEXT_SMALL_BOLD, flex: 1 }}>{data?.name}</Text>

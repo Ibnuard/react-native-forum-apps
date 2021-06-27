@@ -29,9 +29,14 @@ const SplashScreen = ({ navigation }) => {
     async function isSigned() {
         const isSignedIn = await GoogleSignin.isSignedIn();
         setTimeout(() => {
-            isSignedIn ? getUserData() : gotoLogin()
+            isSignedIn ? getUserData() : isOnAuth()
         }, 2500)
         console.log('is User signed? : ' + isSignedIn)
+    }
+
+    async function isOnAuth() {
+        const user = await auth().currentUser
+        user ? getUserData() : gotoLogin()
     }
 
     async function getUserData() {

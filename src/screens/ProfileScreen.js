@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native'
 import Screen from '../components/Screen/Component'
 import Button from '../components/Button/Component'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { AuthContext } from '../store/Context'
 import { Avatar } from 'react-native-paper'
-import { TEXT_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_REGULAR } from '../common/Typography'
+import { TEXT_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR } from '../common/Typography'
 import styles from './styles/ProfileScreen'
 
 import RenderModal from '../components/Modal/Component';
@@ -16,6 +16,7 @@ import { Snackbar } from 'react-native-paper'
 import { DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_POST, USER_REFERENCE } from '../api/Firestore'
 import { Colors, Mixins } from '../styles';
 
+import auth from '@react-native-firebase/auth'
 import PostCard from '../components/Card/PostCard/Component'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import _ from 'lodash'
@@ -101,14 +102,23 @@ const ProfileScreen = ({ navigation, route }) => {
     async function handleLogout() {
         setIsLoading(true)
         console.log('Logging out....')
-        try {
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
+        const user = auth().currentUser
+        console.log('USER : ' + JSON.stringify(user))
+        if (user.providerId == 'firebase') {
+            auth().signOut()
             setIsLoading(false)
             logOut()
-        } catch (error) {
-            setIsLoading(false)
-            console.error(error);
+        } else {
+            try {
+                await GoogleSignin.revokeAccess();
+                await GoogleSignin.signOut();
+                auth().signOut()
+                setIsLoading(false)
+                logOut()
+            } catch (error) {
+                setIsLoading(false)
+                console.error(error);
+            }
         }
     }
 
@@ -168,13 +178,19 @@ const ProfileScreen = ({ navigation, route }) => {
     return (
         <Screen theme={'dark'}>
             <View style={styles.headerBar}>
-                {isFromHome ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
-                    <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
+                <View style={{ flex: 1 }}>
+                    {isFromHome ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
+                        <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
+                    </TouchableOpacity> : null}
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{userData?.email ?? '-'}</Text>
+                </View>
+                {!isFromHome ? <TouchableOpacity onPress={() => handleLogout()}>
+                    <Text style={{ ...TEXT_NORMAL_BOLD, color: Colors.COLOR_WHITE }}>Logout</Text>
                 </TouchableOpacity> : null}
-                <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{userData?.email ?? '-'}</Text>
             </View>
             <View style={styles.topContainer}>
-                <Avatar.Image size={48} source={{ uri: userData?.photoUrl }} />
+                {/*<Avatar.Image size={48} source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} />*/}
+                <Image source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} style={{ height: Mixins.scaleSize(96), width: Mixins.scaleSize(96), borderRadius: 12, backgroundColor: Colors.COLOR_DARK_GRAY }} />
                 <View style={styles.info}>
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{userData?.name ?? 'Loading...'} | </Text>
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
@@ -182,7 +198,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 {!isFromHome ? <Button
                     buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '50%' }}
                     textStyle={{ color: Colors.COLOR_PRIMARY }}
-                    text='Logout'
+                    text='Edit Profile'
                     onPress={() => handleLogout()} /> : null}
             </View>
             <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: Mixins.scaleSize(12), marginVertical: .25 }}>
