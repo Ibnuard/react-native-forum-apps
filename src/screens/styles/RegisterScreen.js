@@ -4,7 +4,7 @@ import { Colors, Mixins } from '../../styles'
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
-        paddingHorizontal: Mixins.scaleSize(24)
+        padding: Mixins.scaleSize(24)
     },
 
     logo: {

@@ -35,6 +35,8 @@ const ProfileScreen = ({ navigation, route }) => {
     const isFromHome = route?.params?.data
     const isFromComment = route?.params?.comment
 
+    const user = auth().currentUser
+
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             // do something
@@ -102,7 +104,6 @@ const ProfileScreen = ({ navigation, route }) => {
     async function handleLogout() {
         setIsLoading(true)
         console.log('Logging out....')
-        const user = auth().currentUser
         console.log('USER : ' + JSON.stringify(user))
         if (user.providerId == 'firebase') {
             auth().signOut()
@@ -195,11 +196,18 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{userData?.name ?? 'Loading...'} | </Text>
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
                 </View>
-                {!isFromHome ? <Button
-                    buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '50%' }}
-                    textStyle={{ color: Colors.COLOR_PRIMARY }}
-                    text='Edit Profile'
-                    onPress={() => handleLogout()} /> : null}
+                <View style={{ flexDirection: 'row' }}>
+                    {!isFromHome ? <Button
+                        buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
+                        textStyle={{ color: Colors.COLOR_PRIMARY }}
+                        text='Edit Profile'
+                        onPress={() => navigation.navigate('EditProfile', { data: userData })} /> : null}
+                    {!isFromHome && user.providerId == 'firebase' ? <Button
+                        buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
+                        textStyle={{ color: Colors.COLOR_PRIMARY }}
+                        text='Reset Password'
+                        onPress={() => navigation.navigate('ResetPassword', { data: userData })} /> : null}
+                </View>
             </View>
             <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: Mixins.scaleSize(12), marginVertical: .25 }}>
                 <Text style={{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_WHITE }}>{totalPost == 0 ? 'No Post Yet!' : totalPost >= 2 ? 'Posts' : 'Post'}</Text>

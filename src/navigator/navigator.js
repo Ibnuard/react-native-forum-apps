@@ -17,6 +17,7 @@ import TopicScreen from '../screens/TopicScreen';
 import DetailTopicScreen from '../screens/DetailTopicScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -124,6 +125,12 @@ export const HomeFlow = () => {
             <Stack.Screen
                 name="EditProfile"
                 component={EditProfileScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Stack.Screen
+                name="ResetPassword"
+                component={ResetPasswordScreen}
                 options={{
                     headerShown: false,
                 }} />

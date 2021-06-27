@@ -20,6 +20,12 @@ const AppStack = () => {
                         isLoading: false,
                         user: action.user
                     }
+                case 'UPDATE':
+                    return {
+                        ...prevState,
+                        isLoading: false,
+                        user: action.user
+                    }
             }
         },
         {
@@ -32,6 +38,7 @@ const AppStack = () => {
     const authContext = React.useMemo(() => ({
         logOut: () => dispatch({ type: 'LOG_OUT' }),
         logIn: (user) => dispatch({ type: 'SIGN_IN', user: user }),
+        updateUser: (user) => dispatch({ type: 'UPDATE', user: user }),
         currentUser: state.user
     }), [state.user])
 

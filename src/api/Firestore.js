@@ -152,16 +152,19 @@ export const DELETE_COMMENT = async (id, commentId) => {
         .doc(id).collection('Comments').doc(commentId).delete().then(() => onCommentDelete(id)).catch((err) => console.log(err))
 }
 
-async function updateProfileImage(email, newProfilePic) {
+export async function updatePostProfileImage(email, profilePic, name) {
     // Get all users
-    const usersQuerySnapshot = await firestore().collection('Post').where('creatorEmail', '==', email).get();
+    const usersQuerySnapshot = await POST_REFERENCE.where('creatorEmail', '==', email).get()
+
+    console.log('User Post : ' + email)
 
     // Create a new batch instance
     const batch = firestore().batch();
 
     usersQuerySnapshot.forEach(documentSnapshot => {
         batch.update(documentSnapshot.ref, {
-            creatorProfilePic: profilePic
+            creatorProfilePic: profilePic,
+            creatorName: name
         })
     });
 

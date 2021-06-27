@@ -12,17 +12,18 @@ import auth from '@react-native-firebase/auth'
 import RenderModal from '../components/Modal/Component';
 import Indicator from '../components/Modal/Indicator/Component';
 import { DEFAULT_IMAGE } from '../common/DefaultImage'
+import Input from '../components/Input/Component'
 
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { updatePostProfileImage, USER_REFERENCE } from '../api/Firestore'
 
 const EditProfileScreen = ({ navigation, route }) => {
-    const data = route?.params?.data
-    const [username, setUsername] = React.useState(data?.displayName)
+    const userData = route?.params?.data
     const [isLoading, setIsLoading] = React.useState(false)
-    const [error, setError] = React.useState('')
-    const [selectedImage, setSelectedImage] = React.useState(DEFAULT_IMAGE)
+    const [selectedImage, setSelectedImage] = React.useState(userData?.photoUrl)
+    const [name, setName] = React.useState(userData?.name)
 
-    const { logIn } = React.useContext(AuthContext)
+    const { updateUser } = React.useContext(AuthContext)
 
     async function handleTakePicture() {
         await launchCamera({
@@ -57,65 +58,62 @@ const EditProfileScreen = ({ navigation, route }) => {
         })
     }
 
-    async function registeredNewuser() {
-
-        setError('')
+    async function updateUserData() {
         setIsLoading(true)
-
-        await firestore()
-            .collection('Users')
-            .doc(data?.email)
-            .set({
-                name: username,
-                email: data?.email,
-                photoUrl: selectedImage,
+        await USER_REFERENCE
+            .doc(userData?.email)
+            .update({
+                name: name,
+                photoUrl: selectedImage
             })
             .then(() => {
-                console.log('User added!');
                 const user = {
-                    name: username,
-                    email: data?.email,
+                    name: name,
                     photoUrl: selectedImage,
+                    email: userData?.email
                 }
-                doLogin(user)
+                updateUser(user)
+                doMassiveUpdate()
             })
             .catch((err) => {
                 setIsLoading(false)
-                setError(err)
-                console.log('Erorr adding data : ' + JSON.stringify(err));
+                alert(err.message)
             })
     }
 
-    async function doLogin(user) {
-        await auth()
-            .signInWithEmailAndPassword(data?.email, route?.params?.pass)
+    async function doMassiveUpdate() {
+        await updatePostProfileImage(userData?.email, selectedImage, name)
             .then(() => {
-                logIn(user)
                 setIsLoading(false)
+                navigation.goBack()
             })
             .catch((err) => {
                 setIsLoading(false)
-                alert(err?.message)
+                alert(err.message)
             })
     }
 
     return (
         <Screen style={styles.container}>
-            <Text style={TEXT_EXTRA_LARGE_BOLD}>New user registration!</Text>
+            <Text style={TEXT_EXTRA_LARGE_BOLD}>Edit Profile</Text>
             <TouchableOpacity activeOpacity={.6} onPress={() => handleSelectImage()}>
                 <Image source={{ uri: 'data:image/png;base64, ' + selectedImage }} style={{ width: Mixins.scaleSize(96), height: Mixins.scaleSize(96), alignSelf: 'center', borderRadius: 48, marginTop: Mixins.scaleSize(24) }} />
             </TouchableOpacity>
-            <Text style={{ ...TEXT_SMALL_REGULAR, alignSelf: 'center', color: Colors.COLOR_DARK_GRAY, marginBottom: Mixins.scaleSize(24) }}>Tap picture to change</Text>
-            <TextInput
-                placeholder={'Set your display name'}
-                placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                style={[{ ...TEXT_NORMAL_BOLD }, styles.input]}
-                value={username}
-                onChangeText={(text) => setUsername(text)} />
-            {error?.length ? <Text style={[{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_RED }]}>* {error}</Text> : null}
-
+            <Text style={{ ...TEXT_SMALL_REGULAR, alignSelf: 'center', color: Colors.COLOR_DARK_GRAY, marginBottom: Mixins.scaleSize(24), marginTop: Mixins.scaleSize(4) }}>Tap picture to change</Text>
+            <Text style={{ ...TEXT_NORMAL_BOLD }}>Username</Text>
+            <Input
+                value={name}
+                onChangeText={(text) => setName(text)}
+                maxLength={32}
+                style={{ ...TEXT_NORMAL_BOLD }} />
+            <Text style={{ ...TEXT_NORMAL_BOLD, marginTop: Mixins.scaleSize(12) }}>Email</Text>
+            <Input
+                value={userData?.email}
+                editable={false}
+                maxLength={32}
+                style={{ ...TEXT_NORMAL_BOLD }} />
             <View style={styles.buttonContainer}>
-                <Button disabled={!username?.length} text={'Continue'} onPress={() => registeredNewuser()} />
+                <Button disabled={!name.length} text={'Save'} onPress={() => updateUserData()} />
             </View>
             <RenderModal visible={isLoading}>
                 <Indicator />
