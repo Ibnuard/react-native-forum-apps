@@ -18,6 +18,8 @@ import DetailTopicScreen from '../screens/DetailTopicScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import UserListScreen from '../screens/UserList';
+import BannerScreen from '../screens/BannerScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -99,14 +101,55 @@ export const AppNavigator = () => {
     )
 }
 
-export const HomeFlow = () => {
+export const AdminNavigator = () => {
+    return (
+        <Tab.Navigator screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+
+                if (route.name === 'Home') {
+                    iconName = 'home';
+                } else if (route.name === 'Users') {
+                    iconName = 'user'
+                } else {
+                    iconName = 'plussquareo'
+                }
+
+                return <AntDesign name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: Colors.COLOR_PRIMARY,
+            tabBarInactiveTintColor: Colors.COLOR_DARK_GRAY
+        })}>
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Banner"
+                component={BannerScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Users"
+                component={UserListScreen}
+                options={{
+                    headerShown: false,
+                }} />
+        </Tab.Navigator>
+    )
+}
+
+export const HomeFlow = ({ admin = false }) => {
     return (
         <Stack.Navigator screenOptions={{
             animationTypeForReplace: 'push'
         }}>
             <Stack.Screen
                 name="TabFlow"
-                component={AppNavigator}
+                component={admin ? AdminNavigator : AppNavigator}
                 options={{
                     headerShown: false,
                 }} />

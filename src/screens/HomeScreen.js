@@ -22,7 +22,7 @@ import { TEXT_MEDIUM_BOLD } from '../common/Typography'
 
 import AntDesign from 'react-native-vector-icons/AntDesign'
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, route }) => {
     const [post, setPost] = React.useState([])
     const { currentUser } = React.useContext(AuthContext)
     const [showMenu, setShowMenu] = React.useState(false)
@@ -42,10 +42,16 @@ const HomeScreen = ({ navigation }) => {
     }, [])
 
     React.useEffect(() => {
-        getBanner()
-    }, [])
+        const unsubscribe = navigation.addListener('focus', () => {
+            // do something
+            getBanner()
+        });
+
+        return unsubscribe;
+    }, [navigation])
 
     async function getBanner() {
+        console.log('getting baner...');
         const banner = await GET_IMAGE_BANNER()
         setBanner(banner?.imageUrl)
     }
@@ -105,8 +111,8 @@ const HomeScreen = ({ navigation }) => {
             onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
         },
         {
-            text: selectedPost?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
-            onPress: () => selectedPost?.creatorEmail == currentUser?.email ? toggleDeletePost() : toggleReport()
+            text: selectedPost?.creatorEmail == currentUser?.email || currentUser?.email == '4dm1n2021' ? 'Delete Post' : 'Report',
+            onPress: () => selectedPost?.creatorEmail == currentUser?.email || currentUser?.email == '4dm1n2021' ? toggleDeletePost() : toggleReport()
         },
         {
             text: 'Cancel',
@@ -139,12 +145,12 @@ const HomeScreen = ({ navigation }) => {
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
                                 onCardPress={() => navigation.navigate('Detail', { data: item })} />
-                            {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: banner[0] }} resizeMode={'stretch'} style={{ width: '100%', height: 128 }} /> : null}
+                            {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: 'data:image/png;base64,' + banner[0] }} resizeMode={'stretch'} style={{ width: '100%', height: 128 }} /> : null}
                         </>
                     } />
             }
             <FAB
-                visible={!showMenu && !snackBar}
+                visible={!showMenu && !snackBar && currentUser.email !== '4dm1n2021'}
                 style={styles.fab}
                 small
                 color={'white'}

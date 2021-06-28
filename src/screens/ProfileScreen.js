@@ -34,6 +34,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const isFromHome = route?.params?.data
     const isFromComment = route?.params?.comment
+    const isAdmin = route?.params?.admin
 
     const user = auth().currentUser
 
@@ -47,6 +48,8 @@ const ProfileScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     const { logOut, currentUser } = React.useContext(AuthContext)
+
+    console.log('test : ' + user?.providerData[0]?.providerId)
 
     async function getUserData() {
 
@@ -71,6 +74,17 @@ const ProfileScreen = ({ navigation, route }) => {
                 })
 
             const data = await USER_REFERENCE.doc(isFromComment?.email).get()
+            setUserData(data.data())
+        } else if (isAdmin) {
+            await POST_REFERENCE
+                .where('creatorEmail', '==', isAdmin?.email)
+                .get()
+                .then((querySnapshot) => {
+                    console.log('size : ' + querySnapshot.size)
+                    setTotalPost(querySnapshot.size)
+                })
+
+            const data = await USER_REFERENCE.doc(isAdmin?.email).get()
             setUserData(data.data())
         } else {
             await POST_REFERENCE
@@ -103,22 +117,29 @@ const ProfileScreen = ({ navigation, route }) => {
 
     async function handleLogout() {
         setIsLoading(true)
-        console.log('Logging out....')
-        console.log('USER : ' + JSON.stringify(user))
-        if (user.providerId == 'firebase') {
-            auth().signOut()
-            setIsLoading(false)
+        console.log('Logging out : ' + JSON.stringify(user?.providerData[0].providerId))
+
+        if (currentUser?.email == '4dm1n2021') {
+            console.log('Logging out admin...')
             logOut()
         } else {
-            try {
-                await GoogleSignin.revokeAccess();
-                await GoogleSignin.signOut();
+            if (user?.providerData[0]?.providerId == 'password') {
+                console.log('Logging out email/pass...')
                 auth().signOut()
                 setIsLoading(false)
                 logOut()
-            } catch (error) {
-                setIsLoading(false)
-                console.error(error);
+            } else {
+                try {
+                    console.log('Logging out google...')
+                    await GoogleSignin.revokeAccess();
+                    await GoogleSignin.signOut();
+                    auth().signOut()
+                    setIsLoading(false)
+                    logOut()
+                } catch (error) {
+                    setIsLoading(false)
+                    console.error(error);
+                }
             }
         }
     }
@@ -179,13 +200,13 @@ const ProfileScreen = ({ navigation, route }) => {
     return (
         <Screen theme={'dark'}>
             <View style={styles.headerBar}>
-                <View style={{ flex: 1 }}>
-                    {isFromHome ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                    {isFromHome || isAdmin || isFromComment ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
                         <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
                     </TouchableOpacity> : null}
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{userData?.email ?? '-'}</Text>
                 </View>
-                {!isFromHome ? <TouchableOpacity onPress={() => handleLogout()}>
+                {!isFromHome && !isAdmin && !isFromComment ? <TouchableOpacity onPress={() => handleLogout()}>
                     <Text style={{ ...TEXT_NORMAL_BOLD, color: Colors.COLOR_WHITE }}>Logout</Text>
                 </TouchableOpacity> : null}
             </View>
@@ -197,12 +218,12 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
-                    {!isFromHome ? <Button
+                    {!isFromHome && !isAdmin && !isFromComment ? <Button
                         buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
                         textStyle={{ color: Colors.COLOR_PRIMARY }}
                         text='Edit Profile'
                         onPress={() => navigation.navigate('EditProfile', { data: userData })} /> : null}
-                    {!isFromHome && user.providerId == 'firebase' ? <Button
+                    {!isFromHome && !isAdmin && !isFromComment && user?.providerData[0]?.providerId == 'password' ? <Button
                         buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
                         textStyle={{ color: Colors.COLOR_PRIMARY }}
                         text='Reset Password'

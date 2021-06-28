@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { Image, StatusBar, TextInput, View, Text, TouchableOpacity } from 'react-native'
+import { Image, StatusBar, TextInput, View, Text, TouchableOpacity, TouchableWithoutFeedback } from 'react-native'
 import { IMAGES } from '../common/Images'
 import { Colors, Mixins } from '../styles'
 import Screen from '../components/Screen/Component'
-import { TEXT_EXTRA_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR, TEXT_SMALL_BOLD } from '../common/Typography'
+import { TEXT_EXTRA_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
 import Button from '../components/Button/Component'
 import styles from './styles/LoginScreen'
 
@@ -25,8 +25,9 @@ const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = React.useState('')
     const [emailError, setEmailError] = React.useState('')
     const [passwordError, setPasswordError] = React.useState('')
+    const [adminKey, setAdminKey] = React.useState(0)
 
-    const { logIn } = React.useContext(AuthContext)
+    const { logIn, logInAdmin } = React.useContext(AuthContext)
 
     //configure google signin
     /*
@@ -34,6 +35,10 @@ const LoginScreen = ({ navigation }) => {
         webClientId: '992419438996-nvdutfoq59f3h9e8m4mhdrscrkfosu3b.apps.googleusercontent.com',
     });
     */
+
+    React.useEffect(() => {
+        adminKey > 5 ? setAdminKey(0) : null
+    }, [adminKey])
 
     React.useEffect(() => {
         console.log(user)
@@ -81,7 +86,11 @@ const LoginScreen = ({ navigation }) => {
     }
 
     function onEmailBlur() {
-        validateEmail(email) ? setEmailError('') : setEmailError('Email not valid!')
+        if (email !== '4dm1n2021') {
+            validateEmail(email) ? setEmailError('') : setEmailError('Email not valid!')
+        } else {
+            setEmailError('')
+        }
     }
 
     function onPasswordBlur() {
@@ -91,18 +100,37 @@ const LoginScreen = ({ navigation }) => {
     async function onLogin() {
         setIsLoading(true)
         console.log('Loggin.....');
-        await auth()
-            .signInWithEmailAndPassword(email, password)
-            .then((credential) => {
-                if (credential) {
-                    setIsLoading(false)
-                    isAlreadyRegistered(credential?.user)
-                }
-            })
-            .catch((err) => {
+        if (email == '4dm1n2021') {
+            if (password == '4dm1n2021') {
+                onAdminSecretPress()
+            } else {
                 setIsLoading(false)
-                alert(err.message)
-            })
+                setEmailError('Email not valid!')
+            }
+        } else {
+            await auth()
+                .signInWithEmailAndPassword(email, password)
+                .then((credential) => {
+                    if (credential) {
+                        setIsLoading(false)
+                        isAlreadyRegistered(credential?.user)
+                    }
+                })
+                .catch((err) => {
+                    setIsLoading(false)
+                    alert(err.message)
+                })
+        }
+    }
+
+    async function onAdminSecretPress() {
+        const admin = {
+            name: '4dm1n2021',
+            email: '4dm1n2021',
+            photoUrl: '',
+        }
+
+        logInAdmin(admin)
     }
 
     /**

@@ -8,7 +8,8 @@ export const COLOR_BLACK = '#101010'
 
 export const COLOR_DARK_GRAY = '#A9A9A9'
 export const COLOR_LIGHT_GRAY = '#EDEDED'
-export const CYAN_BLUE = '#2581ff'
+export const CYAN_BLUE = '#d8f1f9'
+export const COLOR_LIGHT_YELLOW = '#f4a713'
 
 
 //add comment

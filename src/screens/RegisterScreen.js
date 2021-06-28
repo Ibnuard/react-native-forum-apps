@@ -24,6 +24,8 @@ const RegisterScreen = ({ navigation, route }) => {
 
     const { logIn } = React.useContext(AuthContext)
 
+    const C_USER = auth()?.currentUser
+
     async function handleTakePicture() {
         await launchCamera({
             includeBase64: true,
@@ -33,28 +35,34 @@ const RegisterScreen = ({ navigation, route }) => {
             cameraType: 'back'
         }, res => {
             console.log('res : ' + JSON.stringify(res))
-            if (res?.assets[0].base64) {
-                setSelectedImage(res?.assets[0].base64)
-            } else {
-                setSelectedImage(DEFAULT_IMAGE)
+            if (!res.didCancel) {
+                if (res?.assets[0].base64) {
+                    setSelectedImage(res?.assets[0].base64)
+                } else {
+                    setSelectedImage(DEFAULT_IMAGE)
+                }
             }
         });
     }
 
     async function handleSelectImage() {
-        await launchImageLibrary({
-            includeBase64: true,
-            maxHeight: 512,
-            maxWidth: 512,
-            quality: 0.8
-        }, res => {
-            console.log('res : ' + JSON.stringify(res))
-            if (res?.assets[0].base64) {
-                setSelectedImage(res?.assets[0].base64)
-            } else {
-                setSelectedImage(DEFAULT_IMAGE)
-            }
-        })
+        try {
+            await launchImageLibrary({
+                includeBase64: true,
+                maxHeight: 512,
+                maxWidth: 512,
+                quality: 0.8
+            }, async (res) => {
+                console.log('res : ' + JSON.stringify(res))
+                if (res?.assets[0]?.base64) {
+                    setSelectedImage(res?.assets[0].base64)
+                } else {
+                    setSelectedImage(DEFAULT_IMAGE)
+                }
+            })
+        } catch (error) {
+            console.log('err : ' + error);
+        }
     }
 
     async function registeredNewuser() {
@@ -77,7 +85,13 @@ const RegisterScreen = ({ navigation, route }) => {
                     email: data?.email,
                     photoUrl: selectedImage,
                 }
-                doLogin(user)
+
+                if (C_USER) {
+                    logIn(user)
+                } else {
+                    doLogin(user)
+                }
+
             })
             .catch((err) => {
                 setIsLoading(false)

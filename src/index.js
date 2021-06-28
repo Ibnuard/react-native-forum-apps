@@ -11,6 +11,7 @@ const AppStack = () => {
                     return {
                         ...prevState,
                         token: null,
+                        isAdmin: false,
                         isLoading: false
                     }
                 case 'SIGN_IN':
@@ -18,17 +19,28 @@ const AppStack = () => {
                         ...prevState,
                         token: 'user@token',
                         isLoading: false,
+                        isAdmin: false,
                         user: action.user
+                    }
+                case 'SIGN_IN_ADMIN':
+                    return {
+                        ...prevState,
+                        token: 'user@token',
+                        isLoading: false,
+                        isAdmin: true,
+                        user: action.user,
                     }
                 case 'UPDATE':
                     return {
                         ...prevState,
                         isLoading: false,
+                        isAdmin: false,
                         user: action.user
                     }
             }
         },
         {
+            isAdmin: false,
             token: null,
             isLoading: true,
             user: {}
@@ -38,6 +50,7 @@ const AppStack = () => {
     const authContext = React.useMemo(() => ({
         logOut: () => dispatch({ type: 'LOG_OUT' }),
         logIn: (user) => dispatch({ type: 'SIGN_IN', user: user }),
+        logInAdmin: (user) => dispatch({ type: 'SIGN_IN_ADMIN', user: user }),
         updateUser: (user) => dispatch({ type: 'UPDATE', user: user }),
         currentUser: state.user
     }), [state.user])
@@ -49,7 +62,7 @@ const AppStack = () => {
                 {state.isLoading
                     ? <SplashStack />
                     : state.token !== null
-                        ? <HomeFlow />
+                        ? <HomeFlow admin={state?.isAdmin} />
                         : <AuthStack />}
             </NavigationContainer>
         </AuthContext.Provider>

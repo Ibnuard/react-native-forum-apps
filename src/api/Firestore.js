@@ -8,6 +8,7 @@ export const REPORT_REFERENCE = firestore().collection('Report')
 export const REPORT_COMMENT_REFERENCE = firestore().collection('ReportComment')
 export const USER_REFERENCE = firestore().collection('Users')
 export const IMAGE_REFERENCE = firestore().collection('Image')
+export const BANNER_REFERENCE = firestore().collection('Image').doc('banner')
 
 export const LIKE_POST = async (id, email) => {
 
