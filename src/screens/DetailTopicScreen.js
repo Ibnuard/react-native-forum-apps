@@ -179,6 +179,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
                             data={post}
                             user={currentUser}
                             showComment={false}
+                            showBottom={currentUser?.email !== '4dm1n2021'}
                             onProfilePress={() => navigation.navigate('ProfileDetail', { data: post })}
                             onLikePress={() => toggleLike(POST_DATA?.id)}
                             onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
@@ -200,7 +201,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
                         onPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)} />
                 } />
 
-            {selectedComment == null ? <View style={styles.bottomContainer}>
+            {selectedComment == null && currentUser?.email !== '4dm1n2021' ? <View style={styles.bottomContainer}>
                 <TextInput
                     style={styles.inputStyle}
                     placeholderTextColor={Colors.COLOR_DARK_GRAY}

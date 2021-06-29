@@ -20,6 +20,8 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import UserListScreen from '../screens/UserList';
 import BannerScreen from '../screens/BannerScreen';
+import PostReportScreen from '../screens/PostReportScreen';
+import CommentReportScreen from '../screens/CommentReportScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -123,6 +125,18 @@ export const AdminNavigator = () => {
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Post Report"
+                component={PostReportScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Comment Report"
+                component={CommentReportScreen}
                 options={{
                     headerShown: false,
                 }} />

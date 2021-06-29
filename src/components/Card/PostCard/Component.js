@@ -7,7 +7,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import styles from './styles'
 import moment from 'moment'
 
-const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true }) => {
+const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true, showBottom = true }) => {
     const liked = data?.likeUser?.indexOf(user?.email)
 
     /*
@@ -77,7 +77,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
                 </View>
                 <Text style={[{ ...TEXT_SMALL_BOLD }, styles.centerComment]} >{data?.commentCounts} {data?.commentCounts >= 2 ? ' Comments' : ' Comment'}</Text>
             </View>
-            <View style={styles.bottomContainer} >
+            {showBottom ? <View style={styles.bottomContainer} >
                 <TouchableOpacity activeOpacity={.6} style={styles.bottomLikeContainer} onPress={onLikePress}>
                     <AntDesign name={'heart'} size={16} color={liked !== -1 ? Colors.COLOR_RED : Colors.COLOR_DARK_GRAY} />
                     <Text style={[styles.bottomTextTitle, { ...TEXT_NORMAL_REGULAR }, liked !== -1 ? styles.textBoldRed : null]}>{liked !== -1 ? 'Unlike' : 'Like'}</Text>
@@ -86,7 +86,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onCommentPress, onOptionsPre
                     <AntDesign name={'message1'} size={14} color={'blue'} />
                     <Text style={[styles.bottomTextTitle, { ...TEXT_NORMAL_REGULAR }]}>Comment</Text>
                 </TouchableOpacity> : null}
-            </View>
+            </View> : null}
         </>
     )
 }

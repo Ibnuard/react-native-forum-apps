@@ -140,12 +140,14 @@ const HomeScreen = ({ navigation, route }) => {
                             <PostCard
                                 data={item}
                                 user={currentUser}
+                                showBottom={currentUser?.email !== '4dm1n2021'}
                                 onLikePress={() => toggleLike(item?.id)}
                                 onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
                                 onCardPress={() => navigation.navigate('Detail', { data: item })} />
-                            {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: 'data:image/png;base64,' + banner[0] }} resizeMode={'stretch'} style={{ width: '100%', height: 128 }} /> : null}
+                            {currentUser?.email == '4dm1n2021' ? <View style={{ width: '100%', height: 5 }} /> : null}
+                            {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: 'data:image/png;base64,' + banner[0] }} resizeMode={'cover'} style={{ width: '100%', minHeight: 180, maxHeight: 256 }} /> : null}
                         </>
                     } />
             }
