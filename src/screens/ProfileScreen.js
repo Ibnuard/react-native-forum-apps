@@ -20,6 +20,8 @@ import auth from '@react-native-firebase/auth'
 import PostCard from '../components/Card/PostCard/Component'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import _ from 'lodash'
+import { ADMIN_PROFILE } from '../common/DefaultImage';
+import { sortOnKey } from '../utils/utils';
 
 const ProfileScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
@@ -101,18 +103,36 @@ const ProfileScreen = ({ navigation, route }) => {
     }
 
     React.useEffect(() => {
-        return POST_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
-            const list = [];
-            querySnapshot.forEach(doc => {
-                list.push({ ...doc.data(), id: doc.id, });
+        if (userData?.email) {
+            return POST_REFERENCE.where('creatorEmail', '==', userData?.email).onSnapshot((querySnapshot) => {
+                const list = [];
+                querySnapshot.forEach(doc => {
+                    list.push({ ...doc.data(), id: doc.id, });
+                });
+
+                /*
+                const filtered = list.filter(function (item) {
+                    return item.creatorEmail == userData?.email
+                })*/
+
+                setPost(sortOnKey(list, 'timestamp'));
             });
+        } else if (isFromHome?.creatorEmail == '4dm1n2021') {
+            return POST_REFERENCE.where('creatorEmail', '==', '4dm1n2021').onSnapshot((querySnapshot) => {
+                const list = [];
+                querySnapshot.forEach(doc => {
+                    list.push({ ...doc.data(), id: doc.id, });
+                });
 
-            const filtered = list.filter(function (item) {
-                return item.creatorEmail == userData?.email
-            })
+                /*
+                const filtered = list.filter(function (item) {
+                    return item.creatorEmail == userData?.email
+                })*/
 
-            setPost(_.reverse(filtered));
-        });
+                setPost(sortOnKey(list, 'timestamp'));
+            });
+        }
+
     }, [userData?.email])
 
     async function handleLogout() {
@@ -204,7 +224,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     {isFromHome || isAdmin || isFromComment ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
                         <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
                     </TouchableOpacity> : null}
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{userData?.email ?? '-'}</Text>
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.email ?? '-'}</Text>
                 </View>
                 {!isFromHome && !isAdmin && !isFromComment ? <TouchableOpacity onPress={() => handleLogout()}>
                     <Text style={{ ...TEXT_NORMAL_BOLD, color: Colors.COLOR_WHITE }}>Logout</Text>
@@ -214,7 +234,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 {/*<Avatar.Image size={48} source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} />*/}
                 <Image source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} style={{ height: Mixins.scaleSize(96), width: Mixins.scaleSize(96), borderRadius: 12, backgroundColor: Colors.COLOR_DARK_GRAY }} />
                 <View style={styles.info}>
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{userData?.name ?? 'Loading...'} | </Text>
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.name ?? 'Loading...'} | </Text>
                     <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
