@@ -22,6 +22,7 @@ import UserListScreen from '../screens/UserList';
 import BannerScreen from '../screens/BannerScreen';
 import PostReportScreen from '../screens/PostReportScreen';
 import CommentReportScreen from '../screens/CommentReportScreen';
+import HomeAdminScreen from '../screens/HomeAdminScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -78,6 +79,8 @@ export const AppNavigator = () => {
                     iconName = 'home';
                 } else if (route.name === 'Profile') {
                     iconName = 'user'
+                } else if (route.name == 'Topic') {
+                    iconName = 'bars'
                 } else {
                     iconName = 'plussquareo'
                 }
@@ -89,6 +92,12 @@ export const AppNavigator = () => {
         })}>
             <Tab.Screen
                 name="Home"
+                component={HomeAdminScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Tab.Screen
+                name="Topic"
                 component={HomeScreen}
                 options={{
                     headerShown: false,

@@ -15,7 +15,7 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, LIKE_POST, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
@@ -76,7 +76,8 @@ const DetailTopicScreen = ({ navigation, route }) => {
 
         const commentData = {
             comment: comment,
-            timestamp: moment().format()
+            timestamp: moment().format(),
+            reportCounts: 0
         }
 
         await COMMENT_POST(POST_DATA?.id, currentUser, commentData)
@@ -104,7 +105,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
     async function toggleReportComment() {
         setModalType('loading')
         setShowMenu(true)
-        await REPORT_COMMENT(commentList[selectedComment]?.id, currentUser?.email, commentList[selectedComment])
+        await onCommentReported(POST_DATA?.id, commentList[selectedComment]?.id)
             .then(() => {
                 setSelectedComment(null)
                 setShowMenu(false)

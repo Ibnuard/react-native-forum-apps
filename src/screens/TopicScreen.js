@@ -44,13 +44,16 @@ const TopicScreen = ({ navigation }) => {
             title: post.title,
             description: post.description,
             timestamp: moment().format(),
-            creatorName: currentUser?.name,
+            creatorName: currentUser?.email == '4dm1n2021' ? 'PapiaCumi Admin' : currentUser?.name,
             creatorEmail: currentUser?.email,
             creatorProfilePic: currentUser?.photoUrl,
             banner: selectedImage,
             likeCounts: 0,
+            dislikeCounts: 0,
             commentCounts: 0,
-            likeUser: []
+            reportCounts: 0,
+            likeUser: [],
+            dislikeUser: []
         }
 
         await postRef

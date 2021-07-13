@@ -11,7 +11,7 @@ import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { deleteQueryBatch, DELETE_POST, GET_IMAGE_BANNER, IMAGE_REFERENCE, LIKE_POST, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
+import { deleteQueryBatch, DISLIKE_POST, GET_IMAGE_BANNER, LIKE_POST, onPostReported, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
 import { FAB } from 'react-native-paper'
 
 import RenderModal from '../components/Modal/Component';
@@ -21,6 +21,7 @@ import { Snackbar } from 'react-native-paper'
 import { TEXT_MEDIUM_BOLD } from '../common/Typography'
 
 import AntDesign from 'react-native-vector-icons/AntDesign'
+import { sortOnKey } from '../utils/utils'
 
 const HomeScreen = ({ navigation, route }) => {
     const [post, setPost] = React.useState([])
@@ -31,13 +32,14 @@ const HomeScreen = ({ navigation, route }) => {
     const [snackBar, setSnackBar] = React.useState(false)
     const [banner, setBanner] = React.useState([])
 
+
     React.useEffect(() => {
-        return POST_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
+        return POST_REFERENCE.where('creatorEmail', '!=', '4dm1n2021').onSnapshot((querySnapshot) => {
             const list = [];
             querySnapshot.forEach(doc => {
                 list.push({ ...doc.data(), id: doc.id, });
             });
-            setPost(_.reverse(list));
+            setPost(sortOnKey(list, 'timestamp'));
         });
     }, [])
 
@@ -68,9 +70,30 @@ const HomeScreen = ({ navigation, route }) => {
             })
     }
 
+    async function toggleDisLike(id) {
+        console.log('dislike pressed')
+        await DISLIKE_POST(id, currentUser?.email)
+            .then(() => {
+                console.log('Sukes DisLike / Undislike');
+            })
+            .catch((err) => {
+                console.log('Err : ' + err);
+            })
+    }
+
     async function toggleReport() {
         setModalType('loading')
+        /*
         await REPORT_POST(selectedPost?.id, currentUser?.email, selectedPost)
+            .then(() => {
+                setShowMenu(false)
+                setSnackBar(true)
+            })
+            .catch((err) => {
+                setShowMenu(false)
+                console.log('err :' + err)
+            })*/
+        await onPostReported(selectedPost?.id, currentUser?.email)
             .then(() => {
                 setShowMenu(false)
                 setSnackBar(true)
@@ -142,6 +165,7 @@ const HomeScreen = ({ navigation, route }) => {
                                 user={currentUser}
                                 showBottom={currentUser?.email !== '4dm1n2021'}
                                 onLikePress={() => toggleLike(item?.id)}
+                                onDisLikePress={() => toggleDisLike(item?.id)}
                                 onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
@@ -152,7 +176,7 @@ const HomeScreen = ({ navigation, route }) => {
                     } />
             }
             <FAB
-                visible={!showMenu && !snackBar && currentUser.email !== '4dm1n2021'}
+                visible={!showMenu && !snackBar /*&& currentUser.email !== '4dm1n2021'*/}
                 style={styles.fab}
                 small
                 color={'white'}

@@ -32,7 +32,7 @@ const PostReportScreen = ({ navigation, route }) => {
     const [banner, setBanner] = React.useState([])
 
     React.useEffect(() => {
-        return REPORT_REFERENCE.orderBy('timestamp').onSnapshot((querySnapshot) => {
+        return POST_REFERENCE.where('reportCounts', '>', 0).onSnapshot((querySnapshot) => {
             const list = [];
             querySnapshot.forEach(doc => {
                 list.push({ ...doc.data(), id: doc.id, });

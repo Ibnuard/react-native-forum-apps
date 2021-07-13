@@ -25,8 +25,6 @@ const styles = StyleSheet.create({
     topLeftProfieImage: {
         height: Mixins.scaleSize(28),
         width: Mixins.scaleSize(28),
-        backgroundColor: 'gray',
-        borderRadius: 10
     },
 
     imageSize: {
@@ -127,7 +125,12 @@ const styles = StyleSheet.create({
     textBoldRed: {
         color: Colors.COLOR_RED,
         fontWeight: 'bold'
-    }
+    },
+
+    textBoldOrange: {
+        color: Colors.COLOR_PRIMARY,
+        fontWeight: 'bold'
+    },
 
 })
 

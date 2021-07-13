@@ -13,7 +13,6 @@ export const BANNER_REFERENCE = firestore().collection('Image').doc('banner')
 export const LIKE_POST = async (id, email) => {
 
     const topicChild = POST_REFERENCE.doc(id)
-    const topicUserLikeRef = await topicChild.collection('Likes').doc(email).get()
     const isUserLiked = await (await topicChild.get()).data()
 
     const userEmailExist = isUserLiked.likeUser.indexOf(email)
@@ -23,23 +22,6 @@ export const LIKE_POST = async (id, email) => {
     } else {
         onPostLike(id, email, 'unlike')
     }
-
-    /*
-    if (topicUserLikeRef.exists) {
-        console.log('do unlike')
-        return topicChild
-            .collection('Likes')
-            .doc(email)
-            .delete()
-            .then(() => onPostLike(id, email, 'unlike'))
-    } else {
-        console.log('do like')
-        return topicChild
-            .collection('Likes')
-            .doc(email)
-            .set({ like: true })
-            .then(() => onPostLike(id, email, 'like'))
-    }*/
 }
 
 function onPostLike(postId, email, type) {
@@ -65,6 +47,86 @@ function onPostLike(postId, email, type) {
         transaction.update(postReference, {
             likeCounts: type == 'like' ? postSnapshot.data().likeCounts + 1 : postSnapshot.data().likeCounts - 1,
             likeUser: type == 'like' ? [...postSnapshot.data().likeUser, email] : deleteUser()
+        });
+    });
+}
+
+export const DISLIKE_POST = async (id, email) => {
+
+    const topicChild = POST_REFERENCE.doc(id)
+    const isUserDisliked = await (await topicChild.get()).data()
+
+    const userEmailExist = isUserDisliked.dislikeUser.indexOf(email)
+
+    if (userEmailExist == -1) {
+        onPostDislike(id, email, 'dislike')
+    } else {
+        onPostDislike(id, email, 'undislike')
+    }
+}
+
+function onPostDislike(postId, email, type) {
+    // Create a reference to the post
+    console.log('do : ' + email);
+    const postReference = POST_REFERENCE.doc(postId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+
+        function deleteUser() {
+            const getIndex = postSnapshot.data().dislikeUser.indexOf(email)
+            const resd = postSnapshot.data().dislikeUser.splice(0, getIndex)
+
+            return resd
+        }
+
+        transaction.update(postReference, {
+            dislikeCounts: type == 'dislike' ? postSnapshot.data().dislikeCounts + 1 : postSnapshot.data().likeCounts - 1,
+            dislikeUser: type == 'dislike' ? [...postSnapshot.data().dislikeUser, email] : deleteUser()
+        });
+    });
+}
+
+
+export function onPostReported(postId, email) {
+    // Create a reference to the post
+    console.log('do report : ' + postId);
+    const postReference = POST_REFERENCE.doc(postId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+
+        transaction.update(postReference, {
+            reportCounts: postSnapshot.data().reportCounts + 1,
+        });
+    });
+}
+
+export function onCommentReported(postId, commentId) {
+    // Create a reference to the post
+    console.log('do report : ' + postId);
+    const postReference = POST_REFERENCE.doc(postId).collection('Comments').doc(commentId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+
+        transaction.update(postReference, {
+            reportCounts: postSnapshot.data().reportCounts + 1,
         });
     });
 }

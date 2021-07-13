@@ -2,6 +2,7 @@ import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { AppNavigator, AuthStack, SplashStack, HomeFlow } from './navigator/navigator'
 import { AuthContext } from './store/Context';
+import TestScreen from './screens/Test';
 
 const AppStack = () => {
     const [state, dispatch] = React.useReducer(
@@ -63,7 +64,8 @@ const AppStack = () => {
                     ? <SplashStack />
                     : state.token !== null
                         ? <HomeFlow admin={state?.isAdmin} />
-                        : <AuthStack />}
+                        : <AuthStack />
+                }
             </NavigationContainer>
         </AuthContext.Provider>
     )

@@ -17,6 +17,7 @@ import RenderModal from '../components/Modal/Component';
 import Indicator from '../components/Modal/Indicator/Component';
 import Input from '../components/Input/Component'
 import { validateEmail } from '../utils/utils'
+import { ADMIN_PROFILE } from '../common/DefaultImage'
 
 const LoginScreen = ({ navigation }) => {
     const [user, setUser] = React.useState(null)
@@ -127,7 +128,7 @@ const LoginScreen = ({ navigation }) => {
         const admin = {
             name: '4dm1n2021',
             email: '4dm1n2021',
-            photoUrl: '',
+            photoUrl: ADMIN_PROFILE,
         }
 
         logInAdmin(admin)
