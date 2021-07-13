@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
 
     contentDesc: {
         paddingTop: Mixins.scaleSize(4),
-        marginBottom: Mixins.scaleSize(8)
+        marginBottom: Mixins.scaleSize(16)
     },
 
     insightCount: {

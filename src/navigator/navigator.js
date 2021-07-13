@@ -23,6 +23,7 @@ import BannerScreen from '../screens/BannerScreen';
 import PostReportScreen from '../screens/PostReportScreen';
 import CommentReportScreen from '../screens/CommentReportScreen';
 import HomeAdminScreen from '../screens/HomeAdminScreen';
+import HomeTopicScreen from '../screens/HomeAdminTopicScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -118,7 +119,7 @@ export const AdminNavigator = () => {
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
 
-                if (route.name === 'Home') {
+                if (route.name === 'Home' || route.name === 'HomeAdmin') {
                     iconName = 'home';
                 } else if (route.name === 'Users') {
                     iconName = 'user'
@@ -131,6 +132,12 @@ export const AdminNavigator = () => {
             tabBarActiveTintColor: Colors.COLOR_PRIMARY,
             tabBarInactiveTintColor: Colors.COLOR_DARK_GRAY
         })}>
+            <Tab.Screen
+                name="HomeAdmin"
+                component={HomeTopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}

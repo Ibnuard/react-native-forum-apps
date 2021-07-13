@@ -23,18 +23,23 @@ import Menu from '../components/Modal/Menu/Component'
 import Indicator from '../components/Modal/Indicator/Component'
 
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { POST_REFERENCE } from '../api/Firestore'
 
-const TopicScreen = ({ navigation }) => {
-    const [post, setPost] = React.useState({ title: '', description: '' })
+const TopicScreen = ({ navigation, route }) => {
+    const selectedPost = route?.params?.post
+
+    const [post, setPost] = React.useState({ title: selectedPost?.title ?? '', description: selectedPost?.description ?? '' })
     const [isLoading, setIsLoading] = React.useState(false)
     const [showMenu, setShowMenu] = React.useState(false)
     const postRef = firestore().collection('Posts')
     const [modalType, setModalType] = React.useState('popup')
-    const [selectedImage, setSelectedImage] = React.useState('')
+    const [selectedImage, setSelectedImage] = React.useState(selectedPost?.banner ?? '')
 
     const { width } = Dimensions.get('window')
 
     const { currentUser } = React.useContext(AuthContext)
+
+
 
     async function sendPost() {
         setIsLoading(true)
@@ -65,6 +70,7 @@ const TopicScreen = ({ navigation }) => {
                 navigation.goBack()
             })
             .catch((err) => {
+                setIsLoading(false)
                 console.log('error: ' + err)
             })
     }
@@ -102,6 +108,25 @@ const TopicScreen = ({ navigation }) => {
         })
     }
 
+    async function updatePost() {
+        setIsLoading(true)
+        await POST_REFERENCE.doc(selectedPost?.id).update({
+            title: post.title,
+            description: post.description,
+            timestamp: moment().format(),
+            banner: selectedImage
+        }).then(() => {
+            console.log('Posted!!');
+            setIsLoading(false)
+            setPost({ title: '', description: '' })
+            navigation.goBack()
+        })
+            .catch((err) => {
+                setIsLoading(false)
+                console.log('error: ' + err)
+            })
+    }
+
     const menu = [
         {
             text: 'Take a picture',
@@ -124,7 +149,7 @@ const TopicScreen = ({ navigation }) => {
                 <TouchableOpacity activeOpacity={.6} onPress={() => navigation.goBack()}>
                     <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
                 </TouchableOpacity>
-                <Text style={[{ ...TEXT_LARGE_BOLD }, styles.title]}>Create Topic</Text>
+                <Text style={[{ ...TEXT_LARGE_BOLD }, styles.title]}>{selectedPost ? 'Edit Topic' : 'Create Topic'}</Text>
             </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Screen style={styles.screenContainer}>
@@ -158,7 +183,7 @@ const TopicScreen = ({ navigation }) => {
                             <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.imageCaption]} >Tap image to remove</Text>
                         </TouchableOpacity> : null}
                     </View>
-                    <Button disabled={!post.title || !post.description || isLoading} text={'Post'} onPress={() => sendPost()} />
+                    <Button disabled={!post.title || !post.description || isLoading} text={selectedImage ? 'Update' : 'Post'} onPress={() => selectedPost ? updatePost() : sendPost()} />
                     <RenderModal visible={showMenu}>
                         {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
                     </RenderModal>

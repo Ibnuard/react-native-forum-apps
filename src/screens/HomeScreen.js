@@ -130,8 +130,8 @@ const HomeScreen = ({ navigation, route }) => {
 
     const menu = [
         {
-            text: 'See Posts',
-            onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
+            text: currentUser?.email == selectedPost?.creatorEmail ? 'Edit Post' : 'See Posts',
+            onPress: () => (setShowMenu(false), currentUser?.email == selectedPost?.creatorEmail ? navigation.navigate('PostTopic', { post: selectedPost }) : navigation.navigate('Detail', { data: selectedPost }))
         },
         {
             text: selectedPost?.creatorEmail == currentUser?.email || currentUser?.email == '4dm1n2021' ? 'Delete Post' : 'Report',
@@ -169,20 +169,20 @@ const HomeScreen = ({ navigation, route }) => {
                                 onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
-                                onCardPress={() => navigation.navigate('Detail', { data: item })} />
+                                onCardPress={() => currentUser?.email == selectedPost?.creatorEmail ? navigation.navigate('PostTopic', { post: item }) : navigation.navigate('Detail', { data: item })} />
                             {currentUser?.email == '4dm1n2021' ? <View style={{ width: '100%', height: 5 }} /> : null}
                             {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== post?.length ? <Image source={{ uri: 'data:image/png;base64,' + banner[0] }} resizeMode={'cover'} style={{ width: '100%', minHeight: 180, maxHeight: 256 }} /> : null}
                         </>
                     } />
             }
-            <FAB
+            {currentUser?.email !== '4dm1n2021' ? <FAB
                 visible={!showMenu && !snackBar /*&& currentUser.email !== '4dm1n2021'*/}
                 style={styles.fab}
                 small
                 color={'white'}
-                icon="plus"
+                icon={currentUser?.email == '4dm1n2021' ? 'pen' : 'plus'}
                 onPress={() => navigation.navigate('PostTopic')}
-            />
+            /> : null}
             <RenderModal visible={showMenu}>
                 {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>

@@ -1,62 +1,64 @@
 import * as React from 'react'
-import { View, Image, FlatList, StatusBar, Text } from 'react-native'
+import { View, Image, FlatList, StatusBar, TouchableOpacity, Text, TextInput, Keyboard, ScrollView } from 'react-native'
 import { IMAGES } from '../common/Images'
-import { Colors } from '../styles'
+import { Colors, Mixins } from '../styles'
 
 import Screen from '../components/Screen/Component'
 import PostCard from '../components/Card/PostCard/Component'
+import CommentCard from '../components/Card/CommentCard/Component'
 
-import styles from './styles/HomeScreen'
+import styles from './styles/DetailTopicScreen'
 import _ from 'lodash'
 
 import firestore from '@react-native-firebase/firestore'
 import { AuthContext } from '../store/Context'
-import { deleteQueryBatch, DISLIKE_POST, GET_IMAGE_BANNER, LIKE_POST, onPostReported, POST_REFERENCE, REPORT_POST } from '../api/Firestore'
-import { FAB } from 'react-native-paper'
+import IonIcons from 'react-native-vector-icons/Ionicons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
 import Menu from '../components/Modal/Menu/Component'
 import Indicator from '../components/Modal/Indicator/Component'
 import { Snackbar } from 'react-native-paper'
-import { TEXT_MEDIUM_BOLD } from '../common/Typography'
 
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import { sortOnKey } from '../utils/utils'
 
 const HomeAdminScreen = ({ navigation, route }) => {
-    const [post, setPost] = React.useState([])
     const { currentUser } = React.useContext(AuthContext)
+    const POST_DATA = route?.params?.data
+
+    const [post, setPost] = React.useState(POST_DATA)
+    const [comment, setComment] = React.useState('')
+    const [commentList, setCommentList] = React.useState([])
     const [showMenu, setShowMenu] = React.useState(false)
-    const [selectedPost, setSelectedPost] = React.useState([])
     const [modalType, setModalType] = React.useState('popup')
     const [snackBar, setSnackBar] = React.useState(false)
-    const [banner, setBanner] = React.useState([])
+    const [selectedComment, setSelectedComment] = React.useState(null)
+
+    const id = 'LWFSkAjhWVb8rzqXekBS'
 
     React.useEffect(() => {
-        return POST_REFERENCE.where('creatorEmail', '==', '4dm1n2021').onSnapshot((querySnapshot) => {
+        return POST_REFERENCE.doc(id).collection('Comments').orderBy('timestamp').onSnapshot((querySnapshot) => {
             const list = [];
             querySnapshot.forEach(doc => {
                 list.push({ ...doc.data(), id: doc.id, });
             });
-            setPost(sortOnKey(list, 'timestamp'));
+            setCommentList(list);
         });
     }, [])
 
     React.useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            // do something
-            getBanner()
-        });
+        const subscriber = firestore()
+            .collection('Posts')
+            .doc(id)
+            .onSnapshot(documentSnapshot => {
+                setPost(documentSnapshot.data())
+            });
 
-        return unsubscribe;
-    }, [navigation])
-
-    async function getBanner() {
-        console.log('getting baner...');
-        const banner = await GET_IMAGE_BANNER()
-        setBanner(banner?.imageUrl)
-    }
-
+        // Stop listening for updates when no longer required
+        return () => subscriber();
+    }, [id]);
 
     async function toggleLike(id) {
         console.log('like pressed')
@@ -69,9 +71,73 @@ const HomeAdminScreen = ({ navigation, route }) => {
             })
     }
 
-    async function toggleDisLike(id) {
+    async function toggleComment() {
+        console.log('post comment....');
+        setComment('')
+        Keyboard.dismiss()
+
+        const commentData = {
+            comment: comment,
+            timestamp: moment().format(),
+            reportCounts: 0
+        }
+
+        await COMMENT_POST(id, currentUser, commentData)
+            .then(() => {
+                console.log('Sukses post comment!');
+            })
+            .catch((err) => {
+                console.log('err: ' + err);
+            })
+    }
+
+    async function toggleReport() {
+        setModalType('loading')
+        await REPORT_POST(id, currentUser?.email, post)
+            .then(() => {
+                setShowMenu(false)
+                setSnackBar(true)
+            })
+            .catch((err) => {
+                setShowMenu(false)
+                console.log('err :' + err)
+            })
+    }
+
+    async function toggleReportComment() {
+        setModalType('loading')
+        setShowMenu(true)
+        await onCommentReported(id, commentList[selectedComment]?.id)
+            .then(() => {
+                setSelectedComment(null)
+                setShowMenu(false)
+                setSnackBar(true)
+            })
+            .catch((err) => {
+                setSelectedComment(null)
+                setShowMenu(false)
+                console.log('err :' + err)
+            })
+    }
+
+    async function toggleDeletePost() {
+        setModalType('loading')
+        await deleteQueryBatch(id)
+            .then(() => {
+                console.log('Delete Success!!');
+                setPost(POST_DATA)
+                setShowMenu(false)
+                navigation.goBack()
+            })
+            .catch((err) => {
+                console.log('Delet failed!!')
+                setShowMenu(false)
+            })
+    }
+
+    async function toggleDisLike(ids) {
         console.log('dislike pressed')
-        await DISLIKE_POST(id, currentUser?.email)
+        await DISLIKE_POST(ids, currentUser?.email)
             .then(() => {
                 console.log('Sukes DisLike / Undislike');
             })
@@ -80,66 +146,31 @@ const HomeAdminScreen = ({ navigation, route }) => {
             })
     }
 
-    async function toggleReport() {
+    async function toggleDeleteComment() {
         setModalType('loading')
-        /*
-        await REPORT_POST(selectedPost?.id, currentUser?.email, selectedPost)
+        setShowMenu(true)
+        await DELETE_COMMENT(id, commentList[selectedComment]?.id)
             .then(() => {
-                setShowMenu(false)
-                setSnackBar(true)
-            })
-            .catch((err) => {
-                setShowMenu(false)
-                console.log('err :' + err)
-            })*/
-        await onPostReported(selectedPost?.id, currentUser?.email)
-            .then(() => {
-                setShowMenu(false)
-                setSnackBar(true)
-            })
-            .catch((err) => {
-                setShowMenu(false)
-                console.log('err :' + err)
-            })
-    }
-
-    async function toggleDeletePost() {
-        setModalType('loading')
-        /*
-        await DELETE_POST(selectedPost?.id)
-            .then(() => {
+                setSelectedComment(null)
                 console.log('Delete Success!!');
                 setShowMenu(false)
             })
             .catch((err) => {
                 console.log('Delet failed!!')
+                setSelectedComment(null)
                 setShowMenu(false)
-            })
-            */
-        await deleteQueryBatch(selectedPost?.id)
-            .then(() => {
-                setShowMenu(false)
-                console.log('Delete Sukses!')
-            })
-            .catch((err) => {
-                setShowMenu(false)
-                console.log('Delete Failed : ' + err)
             })
     }
 
     const menu = [
         {
-            text: 'See Posts',
-            onPress: () => (setShowMenu(false), navigation.navigate('Detail', { data: selectedPost }))
-        },
-        {
-            text: selectedPost?.creatorEmail == currentUser?.email || currentUser?.email == '4dm1n2021' ? 'Delete Post' : 'Report',
-            onPress: () => selectedPost?.creatorEmail == currentUser?.email || currentUser?.email == '4dm1n2021' ? toggleDeletePost() : toggleReport()
+            text: post?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
+            onPress: () => post?.creatorEmail == currentUser?.email ? toggleDeletePost() : toggleReport()
         },
         {
             text: 'Cancel',
             textStyle: { color: Colors.COLOR_RED },
-            onPress: () => (setShowMenu(false), setSelectedPost([]))
+            onPress: () => setShowMenu(false)
         },
     ]
 
@@ -149,39 +180,53 @@ const HomeAdminScreen = ({ navigation, route }) => {
             <View style={styles.headerBar}>
                 <Image source={IMAGES.logo} style={styles.logo} resizeMode={'contain'} />
             </View>
-            {!post.length ?
-                <View style={styles.noPost}>
-                    <AntDesign name={'frowno'} size={60} color={Colors.COLOR_DARK_GRAY} />
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_DARK_GRAY }, styles.noPostText]}>No Post Yet!</Text>
-                </View> :
-                <FlatList
-                    data={post}
-                    contentContainerStyle={styles.listSpacing}
-                    renderItem={({ item, index }) =>
-                        <>
-                            {index == 0 ? <Image source={IMAGES.banner} resizeMode={'contain'} style={{ width: '100%', height: 120 }} /> : null}
-                            <PostCard
-                                data={item}
-                                user={currentUser}
-                                showBottom={currentUser?.email !== '4dm1n2021'}
-                                onLikePress={() => toggleLike(item?.id)}
-                                onDisLikePress={() => toggleDisLike(item?.id)}
-                                onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
-                                onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
-                                onCommentPress={() => navigation.navigate('Detail', { data: item })}
-                                onCardPress={() => navigation.navigate('Detail', { data: item })} />
-                            {currentUser?.email == '4dm1n2021' ? <View style={{ width: '100%', height: 5 }} /> : null}
-                        </>
-                    } />
-            }
-            <FAB
-                visible={!showMenu && !snackBar /*&& currentUser.email !== '4dm1n2021'*/}
-                style={styles.fab}
-                small
-                color={'white'}
-                icon="plus"
-                onPress={() => navigation.navigate('PostTopic')}
-            />
+
+            <FlatList
+                data={commentList}
+                contentContainerStyle={{ paddingBottom: Mixins.scaleSize(120) }}
+                ListHeaderComponent={
+                    <>
+                        <PostCard
+                            data={post}
+                            user={currentUser}
+                            showComment={false}
+                            showOptions={false}
+                            showBottom={currentUser?.email !== '4dm1n2021'}
+                            onProfilePress={() => navigation.navigate('ProfileDetail', { data: post })}
+                            onLikePress={() => toggleLike(id)}
+                            onDisLikePress={() => toggleDisLike(id)}
+                            onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
+                            onCardPress={() => null} />
+
+                        <View style={styles.commentDivider}>
+                            <Text style={{ ...TEXT_NORMAL_BOLD }}>Comment</Text>
+                            <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY }}>  ●  {post?.commentCounts == 0 ? 'No comments yet' : `${post?.commentCounts} comments`}</Text>
+                        </View>
+                    </>
+                }
+                renderItem={({ item, index }) =>
+                    <CommentCard
+                        data={item}
+                        isSelected={selectedComment == index}
+                        email={currentUser?.email}
+                        onProfilePress={() => navigation.navigate('ProfileDetail', { comment: item })}
+                        onButtonPrees={(t) => t == 'r' ? toggleReportComment() : toggleDeleteComment()}
+                        onPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)} />
+                } />
+
+            {selectedComment == null && currentUser?.email !== '4dm1n2021' ? <View style={styles.bottomContainer}>
+                <TextInput
+                    style={styles.inputStyle}
+                    placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                    placeholder={'Enter your comment...'}
+                    multiline={false}
+                    maxLength={100}
+                    onChangeText={(text) => setComment(text)}
+                    value={comment} />
+                <TouchableOpacity style={styles.sendButton} activeOpacity={comment.length ? .6 : 1} onPress={() => comment.length ? toggleComment() : null}>
+                    <IonIcons name={'send'} size={20} color={comment.length ? Colors.COLOR_PRIMARY : Colors.COLOR_DARK_GRAY} />
+                </TouchableOpacity>
+            </View> : null}
             <RenderModal visible={showMenu}>
                 {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>

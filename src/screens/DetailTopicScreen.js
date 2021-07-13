@@ -15,7 +15,7 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
@@ -149,6 +149,17 @@ const DetailTopicScreen = ({ navigation, route }) => {
             })
     }
 
+    async function toggleDisLike(id) {
+        console.log('dislike pressed')
+        await DISLIKE_POST(id, currentUser?.email)
+            .then(() => {
+                console.log('Sukes DisLike / Undislike');
+            })
+            .catch((err) => {
+                console.log('Err : ' + err);
+            })
+    }
+
     const menu = [
         {
             text: post?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
@@ -183,6 +194,7 @@ const DetailTopicScreen = ({ navigation, route }) => {
                             showBottom={currentUser?.email !== '4dm1n2021'}
                             onProfilePress={() => navigation.navigate('ProfileDetail', { data: post })}
                             onLikePress={() => toggleLike(POST_DATA?.id)}
+                            onDisLikePress={() => toggleDisLike(POST_DATA?.id)}
                             onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
                             onCardPress={() => null} />
 

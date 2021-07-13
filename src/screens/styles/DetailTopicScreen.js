@@ -14,6 +14,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: Mixins.scaleSize(8)
     },
 
+    logo: {
+        height: Mixins.scaleSize(20),
+        width: Mixins.scaleSize(80)
+    },
+
     commentDivider: {
         backgroundColor: 'white',
         padding: Mixins.scaleSize(14),

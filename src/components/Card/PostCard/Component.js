@@ -8,7 +8,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import styles from './styles'
 import moment from 'moment'
 
-const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true, showBottom = true }) => {
+const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPress, onOptionsPress, onProfilePress, user, showComment = true, showBottom = true, showOptions = true }) => {
     const liked = data?.likeUser?.indexOf(user?.email)
     const disliked = data?.dislikeUser?.indexOf(user?.email)
 
@@ -57,11 +57,11 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.topRightChild}>
+                    {showOptions ? <View style={styles.topRightChild}>
                         <TouchableOpacity onPress={onOptionsPress} activeOpacity={.5} style={styles.topRightOption}>
                             <AntDesign name={'ellipsis1'} size={24} color={'gray'} />
                         </TouchableOpacity>
-                    </View>
+                    </View> : null}
                 </View>
 
                 <TouchableOpacity activeOpacity={.6} onPress={onCardPress}>
