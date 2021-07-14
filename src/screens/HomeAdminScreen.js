@@ -180,12 +180,12 @@ const HomeAdminScreen = ({ navigation, route }) => {
             <View style={styles.headerBar}>
                 <Image source={IMAGES.logo} style={styles.logo} resizeMode={'contain'} />
             </View>
-
             <FlatList
                 data={commentList}
                 contentContainerStyle={{ paddingBottom: Mixins.scaleSize(120) }}
                 ListHeaderComponent={
                     <>
+                        <Image source={IMAGES.banner} resizeMode={'contain'} style={{ width: '100%', height: 105 }} />
                         <PostCard
                             data={post}
                             user={currentUser}
