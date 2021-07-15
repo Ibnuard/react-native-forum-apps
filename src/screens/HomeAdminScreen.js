@@ -15,7 +15,7 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_COMMENT, DISLIKE_POST, LIKE_COMMENT, LIKE_POST, onCommentReported, POST_REFERENCE, REPLY_COMMENT, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
@@ -31,12 +31,13 @@ const HomeAdminScreen = ({ navigation, route }) => {
     const [post, setPost] = React.useState(POST_DATA)
     const [comment, setComment] = React.useState('')
     const [commentList, setCommentList] = React.useState([])
+    const [replyList, setReplyList] = React.useState([])
     const [showMenu, setShowMenu] = React.useState(false)
     const [modalType, setModalType] = React.useState('popup')
     const [snackBar, setSnackBar] = React.useState(false)
     const [selectedComment, setSelectedComment] = React.useState(null)
-
-    const id = 'LWFSkAjhWVb8rzqXekBS'
+    const [replyAt, setReplyAt] = React.useState(null)
+    const id = 'ADMIN'
 
     React.useEffect(() => {
         return POST_REFERENCE.doc(id).collection('Comments').orderBy('timestamp').onSnapshot((querySnapshot) => {
@@ -44,9 +45,19 @@ const HomeAdminScreen = ({ navigation, route }) => {
             querySnapshot.forEach(doc => {
                 list.push({ ...doc.data(), id: doc.id, });
             });
-            setCommentList(list);
+            const filterReply = list.filter(function (item) {
+                return !item?.replyAt
+            })
+
+            const filterGetReply = list.filter(function (item) {
+                return item?.replyAt
+            })
+            setCommentList(filterReply);
+            setReplyList(filterGetReply)
         });
     }, [])
+
+    console.log('reindx : ' + selectedComment);
 
     React.useEffect(() => {
         const subscriber = firestore()
@@ -79,16 +90,33 @@ const HomeAdminScreen = ({ navigation, route }) => {
         const commentData = {
             comment: comment,
             timestamp: moment().format(),
-            reportCounts: 0
+            reportCounts: 0,
+            likeCounts: 0,
+            dislikeCounts: 0,
+            likeUser: [],
+            dislikeUser: []
         }
 
-        await COMMENT_POST(id, currentUser, commentData)
-            .then(() => {
-                console.log('Sukses post comment!');
-            })
-            .catch((err) => {
-                console.log('err: ' + err);
-            })
+        if (!replyAt) {
+            await COMMENT_POST(id, currentUser, commentData, true)
+                .then(() => {
+                    console.log('Sukses post comment!');
+                })
+                .catch((err) => {
+                    console.log('err: ' + err);
+                })
+        } else {
+            await COMMENT_POST(id, currentUser, { ...commentData, replyAt: replyAt?.id }, false)
+                .then(() => {
+                    setReplyAt(null)
+                    console.log('Sukses post comment!');
+                })
+                .catch((err) => {
+                    setReplyAt(null)
+                    console.log('err: ' + err);
+                })
+        }
+
     }
 
     async function toggleReport() {
@@ -104,10 +132,10 @@ const HomeAdminScreen = ({ navigation, route }) => {
             })
     }
 
-    async function toggleReportComment() {
+    async function toggleReportComment(ids) {
         setModalType('loading')
         setShowMenu(true)
-        await onCommentReported(id, commentList[selectedComment]?.id)
+        await onCommentReported(id, ids)
             .then(() => {
                 setSelectedComment(null)
                 setShowMenu(false)
@@ -146,10 +174,10 @@ const HomeAdminScreen = ({ navigation, route }) => {
             })
     }
 
-    async function toggleDeleteComment() {
+    async function toggleDeleteComment(ids, isReply) {
         setModalType('loading')
         setShowMenu(true)
-        await DELETE_COMMENT(id, commentList[selectedComment]?.id)
+        await DELETE_COMMENT(id, ids, isReply)
             .then(() => {
                 setSelectedComment(null)
                 console.log('Delete Success!!');
@@ -160,6 +188,18 @@ const HomeAdminScreen = ({ navigation, route }) => {
                 setSelectedComment(null)
                 setShowMenu(false)
             })
+    }
+
+    async function onLikeComment(ids) {
+        await LIKE_COMMENT(id, currentUser?.email, ids)
+            .then(() => 'sukeses')
+            .catch(() => 'errors')
+    }
+
+    async function onDisLikeComment(ids) {
+        await DISLIKE_COMMENT(id, currentUser?.email, ids)
+            .then(() => 'sukeses')
+            .catch(() => 'errors')
     }
 
     const menu = [
@@ -185,18 +225,17 @@ const HomeAdminScreen = ({ navigation, route }) => {
                 contentContainerStyle={{ paddingBottom: Mixins.scaleSize(120) }}
                 ListHeaderComponent={
                     <>
-                        <Image source={IMAGES.banner} resizeMode={'contain'} style={{ width: '100%', height: 105 }} />
+                        <Image source={IMAGES.banner} resizeMode={'stretch'} style={{ width: '100%', height: 120 }} />
                         <PostCard
                             data={post}
                             user={currentUser}
                             showComment={false}
                             showOptions={false}
-                            showBottom={currentUser?.email !== '4dm1n2021'}
-                            onProfilePress={() => navigation.navigate('ProfileDetail', { data: post })}
+                            showBottom={false}
                             onLikePress={() => toggleLike(id)}
                             onDisLikePress={() => toggleDisLike(id)}
                             onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
-                            onCardPress={() => null} />
+                            onCardPress={() => currentUser?.email !== '4dm1n2021' ? null : navigation.navigate('PostTopic', { post: post })} />
 
                         <View style={styles.commentDivider}>
                             <Text style={{ ...TEXT_NORMAL_BOLD }}>Comment</Text>
@@ -207,26 +246,44 @@ const HomeAdminScreen = ({ navigation, route }) => {
                 renderItem={({ item, index }) =>
                     <CommentCard
                         data={item}
-                        isSelected={selectedComment == index}
+                        indexed={index}
+                        replyData={replyList}
+                        isSelected={selectedComment}
                         email={currentUser?.email}
-                        onProfilePress={() => navigation.navigate('ProfileDetail', { comment: item })}
-                        onButtonPrees={(t) => t == 'r' ? toggleReportComment() : toggleDeleteComment()}
-                        onPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)} />
+                        onButtonPrees={(t, ids, isReply) => t == 'r' ? toggleReportComment(ids) : toggleDeleteComment(ids, isReply)}
+                        onReplyPress={() => setReplyAt(item)}
+                        onLongPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)}
+                        onReplyLongPress={(idx) => selectedComment !== idx ? setSelectedComment(idx) : setSelectedComment(null)}
+                        onLikePress={(ids) => onLikeComment(ids)}
+                        onDisLikePress={(ids) => onDisLikeComment(ids)} />
                 } />
 
-            {selectedComment == null && currentUser?.email !== '4dm1n2021' ? <View style={styles.bottomContainer}>
-                <TextInput
-                    style={styles.inputStyle}
-                    placeholderTextColor={Colors.COLOR_DARK_GRAY}
-                    placeholder={'Enter your comment...'}
-                    multiline={false}
-                    maxLength={100}
-                    onChangeText={(text) => setComment(text)}
-                    value={comment} />
-                <TouchableOpacity style={styles.sendButton} activeOpacity={comment.length ? .6 : 1} onPress={() => comment.length ? toggleComment() : null}>
-                    <IonIcons name={'send'} size={20} color={comment.length ? Colors.COLOR_PRIMARY : Colors.COLOR_DARK_GRAY} />
-                </TouchableOpacity>
-            </View> : null}
+            {selectedComment == null && currentUser?.email !== '4dm1n2021' ?
+                <View>
+                    {replyAt ? <View style={{ backgroundColor: 'white', padding: Mixins.scaleSize(12), flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ flex: 1 }}>
+                            Reply to {' '}
+                            <Text style={{ fontWeight: 'bold' }}>{replyAt?.name}</Text>
+                        </Text>
+                        <TouchableOpacity onPress={() => setReplyAt(null)}>
+                            <AntDesign name={'close'} size={14} color={'gray'} />
+                        </TouchableOpacity>
+                    </View> : null}
+                    <View style={styles.bottomContainer}>
+                        <TextInput
+                            style={styles.inputStyle}
+                            placeholderTextColor={Colors.COLOR_DARK_GRAY}
+                            placeholder={'Enter your comment...'}
+                            multiline={false}
+                            maxLength={100}
+                            onChangeText={(text) => setComment(text)}
+                            value={comment} />
+                        <TouchableOpacity style={styles.sendButton} activeOpacity={comment.length ? .6 : 1} onPress={() => comment.length ? toggleComment() : null}>
+                            <IonIcons name={'send'} size={20} color={comment.length ? Colors.COLOR_PRIMARY : Colors.COLOR_DARK_GRAY} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                : null}
             <RenderModal visible={showMenu}>
                 {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>

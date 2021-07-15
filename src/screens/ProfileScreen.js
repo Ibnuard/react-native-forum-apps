@@ -5,7 +5,7 @@ import Button from '../components/Button/Component'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { AuthContext } from '../store/Context'
 import { Avatar } from 'react-native-paper'
-import { TEXT_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR } from '../common/Typography'
+import { TEXT_LARGE_BOLD, TEXT_MEDIUM_BOLD, TEXT_NORMAL_BOLD, TEXT_NORMAL_REGULAR, TEXT_SMALL_BOLD } from '../common/Typography'
 import styles from './styles/ProfileScreen'
 
 import RenderModal from '../components/Modal/Component';
@@ -22,6 +22,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import _ from 'lodash'
 import { ADMIN_PROFILE } from '../common/DefaultImage';
 import { sortOnKey } from '../utils/utils';
+import { IMAGES } from '../common/Images';
 
 const ProfileScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
@@ -145,16 +146,14 @@ const ProfileScreen = ({ navigation, route }) => {
         } else {
             if (user?.providerData[0]?.providerId == 'password') {
                 console.log('Logging out email/pass...')
-                auth().signOut()
-                setIsLoading(false)
+                auth().signOut().then(() => setIsLoading(false))
                 logOut()
             } else {
                 try {
                     console.log('Logging out google...')
                     await GoogleSignin.revokeAccess();
                     await GoogleSignin.signOut();
-                    auth().signOut()
-                    setIsLoading(false)
+                    auth().signOut().then(() => setIsLoading(false))
                     logOut()
                 } catch (error) {
                     setIsLoading(false)
@@ -218,63 +217,54 @@ const ProfileScreen = ({ navigation, route }) => {
     ]
 
     return (
-        <Screen theme={'dark'}>
+        <Screen theme={'dark'} style={{ backgroundColor: Colors.COLOR_WHITE }}>
             <View style={styles.headerBar}>
-                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    {isFromHome || isAdmin || isFromComment ? <TouchableOpacity style={styles.backButton} activeOpacity={.6} onPress={() => navigation.goBack()}>
-                        <AntDesign name={'arrowleft'} size={18} color={Colors.COLOR_WHITE} />
+                <Image source={IMAGES.logo} style={{ width: Mixins.scaleSize(80), height: Mixins.scaleSize(20) }} />
+            </View>
+            <View style={{ backgroundColor: Colors.COLOR_PRIMARY, height: Mixins.scaleSize(125), width: '100%', position: 'relative' }} />
+            <View style={{ marginTop: -120 }}>
+                <View style={{ backgroundColor: Colors.COLOR_WHITE, margin: Mixins.scaleSize(18), paddingVertical: Mixins.scaleSize(24), justifyContent: 'center', alignItems: 'center', borderRadius: 8, elevation: 3 }}>
+                    <Image source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} style={{ height: Mixins.scaleSize(72), width: Mixins.scaleSize(72), borderRadius: 36, backgroundColor: Colors.COLOR_DARK_GRAY }} />
+                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.nameDark]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.name ?? 'Loading...'}</Text>
+                    <Text style={[{ ...TEXT_SMALL_BOLD, color: 'gray' }]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.email ?? 'Loading...'}</Text>
+                    <Text style={[{ ...TEXT_SMALL_BOLD, color: 'gray' }]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.phone ?? 'Loading...'}</Text>
+                </View>
+                <View>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.jumpTo('Home')}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'antdesign'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Dashboard</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.navigate('EditProfile', { data: userData })}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'edit'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Edit Profile</Text>
+                    </TouchableOpacity>
+                    {user?.providerData[0]?.providerId == 'password' ? <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.navigate('ResetPassword', { data: userData })}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'key'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Reset Password</Text>
                     </TouchableOpacity> : null}
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.email]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.email ?? '-'}</Text>
-                </View>
-                {!isFromHome && !isAdmin && !isFromComment ? <TouchableOpacity onPress={() => handleLogout()}>
-                    <Text style={{ ...TEXT_NORMAL_BOLD, color: Colors.COLOR_WHITE }}>Logout</Text>
-                </TouchableOpacity> : null}
-            </View>
-            <View style={styles.topContainer}>
-                {/*<Avatar.Image size={48} source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} />*/}
-                <Image source={{ uri: 'data:image/jpeg;base64,' + userData?.photoUrl }} style={{ height: Mixins.scaleSize(96), width: Mixins.scaleSize(96), borderRadius: 12, backgroundColor: Colors.COLOR_DARK_GRAY }} />
-                <View style={styles.info}>
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{isFromHome?.creatorEmail == '4dm1n2021' ? 'PapiaCumi Admin' : userData?.name ?? 'Loading...'} | </Text>
-                    <Text style={[{ ...TEXT_MEDIUM_BOLD }, styles.name]}>{totalPost} {totalPost >= 2 ? 'Posts' : 'Post'}</Text>
-                </View>
-                <View style={{ flexDirection: 'row' }}>
-                    {!isFromHome && !isAdmin && !isFromComment ? <Button
-                        buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
-                        textStyle={{ color: Colors.COLOR_PRIMARY }}
-                        text='Edit Profile'
-                        onPress={() => navigation.navigate('EditProfile', { data: userData })} /> : null}
-                    {!isFromHome && !isAdmin && !isFromComment && user?.providerData[0]?.providerId == 'password' ? <Button
-                        buttonStyle={{ backgroundColor: Colors.COLOR_WHITE, borderRadius: 24, width: '40%', marginHorizontal: Mixins.scaleSize(8) }}
-                        textStyle={{ color: Colors.COLOR_PRIMARY }}
-                        text='Reset Password'
-                        onPress={() => navigation.navigate('ResetPassword', { data: userData })} /> : null}
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.jumpTo('Topic')}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'staro'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Suggestion Topic</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => handleLogout()}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'logout'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Logout</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={{ backgroundColor: Colors.COLOR_PRIMARY, padding: Mixins.scaleSize(12), marginVertical: .25 }}>
-                <Text style={{ ...TEXT_MEDIUM_BOLD, color: Colors.COLOR_WHITE }}>{totalPost == 0 ? 'No Post Yet!' : totalPost >= 2 ? 'Posts' : 'Post'}</Text>
-            </View>
-
-            <FlatList
-                data={post}
-                contentContainerStyle={styles.listSpacing}
-                renderItem={({ item, index }) =>
-                    <PostCard
-                        data={item}
-                        user={currentUser}
-                        onLikePress={() => toggleLike(item?.id)}
-                        onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
-                        onCommentPress={() => navigation.navigate('Detail', { data: item })}
-                        onCardPress={() => navigation.navigate('Detail', { data: item })} />
-                } />
             <RenderModal visible={showMenu}>
-                {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
+                <Indicator />
             </RenderModal>
-            <Snackbar
-                visible={snackBar}
-                duration={3000}
-                onDismiss={() => setSnackBar(false)}>
-                Report success, Thanks for reporting!
-            </Snackbar>
         </Screen>
     )
 }

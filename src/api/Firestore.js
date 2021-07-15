@@ -24,6 +24,88 @@ export const LIKE_POST = async (id, email) => {
     }
 }
 
+export const LIKE_COMMENT = async (id, email, commentId) => {
+
+    const topicChild = POST_REFERENCE.doc(id).collection('Comments').doc(commentId)
+    const isUserLiked = await (await topicChild.get()).data()
+
+    const userEmailExist = isUserLiked.likeUser.indexOf(email)
+
+    if (userEmailExist == -1) {
+        onCommentLike(id, email, 'like', commentId)
+    } else {
+        onCommentLike(id, email, 'unlike', commentId)
+    }
+}
+
+function onCommentLike(postId, email, type, commentId) {
+    // Create a reference to the post
+    console.log('do : ' + email);
+    const postReference = POST_REFERENCE.doc(postId).collection('Comments').doc(commentId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+
+        function deleteUser() {
+            const getIndex = postSnapshot.data().likeUser.indexOf(email)
+            const resd = postSnapshot.data().likeUser.splice(0, getIndex)
+
+            return resd
+        }
+
+        transaction.update(postReference, {
+            likeCounts: type == 'like' ? postSnapshot.data().likeCounts + 1 : postSnapshot.data().likeCounts - 1,
+            likeUser: type == 'like' ? [...postSnapshot.data().likeUser, email] : deleteUser()
+        });
+    });
+}
+
+export const DISLIKE_COMMENT = async (id, email, commentId) => {
+
+    const topicChild = POST_REFERENCE.doc(id).collection('Comments').doc(commentId)
+    const isUserLiked = await (await topicChild.get()).data()
+
+    const userEmailExist = isUserLiked.dislikeUser.indexOf(email)
+
+    if (userEmailExist == -1) {
+        onCommentDisLike(id, email, 'like', commentId)
+    } else {
+        onCommentDisLike(id, email, 'unlike', commentId)
+    }
+}
+
+function onCommentDisLike(postId, email, type, commentId) {
+    // Create a reference to the post
+    console.log('do : ' + email);
+    const postReference = POST_REFERENCE.doc(postId).collection('Comments').doc(commentId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+
+        function deleteUser() {
+            const getIndex = postSnapshot.data().dislikeUser.indexOf(email)
+            const resd = postSnapshot.data().dislikeUser.splice(0, getIndex)
+
+            return resd
+        }
+
+        transaction.update(postReference, {
+            dislikeCounts: type == 'like' ? postSnapshot.data().dislikeCounts + 1 : postSnapshot.data().dislikeCounts - 1,
+            dislikeUser: type == 'like' ? [...postSnapshot.data().dislikeUser, email] : deleteUser()
+        });
+    });
+}
+
 function onPostLike(postId, email, type) {
     // Create a reference to the post
     console.log('do : ' + email);
@@ -131,9 +213,12 @@ export function onCommentReported(postId, commentId) {
     });
 }
 
-function onCommentDelete(postId) {
+function onCommentDelete(postId, commentId) {
     // Create a reference to the post
     const postReference = POST_REFERENCE.doc(postId);
+
+    POST_REFERENCE
+        .doc(postId).collection('Comments').doc(commentId).delete().then(() => onCommentDelete(id)).catch((err) => console.log(err))
 
     return firestore().runTransaction(async transaction => {
         // Get post data first
@@ -167,8 +252,13 @@ function onPostComment(postId) {
     });
 }
 
-export const COMMENT_POST = (id, user, comment) => {
+export const COMMENT_POST = (id, user, comment, addCount = true) => {
     const topicChild = POST_REFERENCE.doc(id).collection('Comments')
+    return topicChild.add({ ...comment, ...user }).then(() => addCount ? onPostComment(id) : null).catch((err) => console.log(err))
+}
+
+export const REPLY_COMMENT = (postId, commentId, comment, user) => {
+    const topicChild = POST_REFERENCE.doc(postId).collection('Comments').doc(commentId).collection('Reply')
     return topicChild.add({ ...comment, ...user }).then(() => onPostComment(id)).catch((err) => console.log(err))
 }
 
@@ -210,9 +300,9 @@ export const DELETE_POST = async (id) => {
         .delete()
 }
 
-export const DELETE_COMMENT = async (id, commentId) => {
+export const DELETE_COMMENT = async (id, commentId, isReply) => {
     return POST_REFERENCE
-        .doc(id).collection('Comments').doc(commentId).delete().then(() => onCommentDelete(id)).catch((err) => console.log(err))
+        .doc(id).collection('Comments').doc(commentId).delete().then(() => isReply ? null : onCommentDelete(id, commentId)).catch((err) => console.log(err))
 }
 
 export async function updatePostProfileImage(email, profilePic, name) {

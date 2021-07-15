@@ -166,7 +166,6 @@ const HomeScreen = ({ navigation, route }) => {
                                 showBottom={currentUser?.email !== '4dm1n2021'}
                                 onLikePress={() => toggleLike(item?.id)}
                                 onDisLikePress={() => toggleDisLike(item?.id)}
-                                onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
                                 onCardPress={() => currentUser?.email == selectedPost?.creatorEmail ? navigation.navigate('PostTopic', { post: item }) : navigation.navigate('Detail', { data: item })} />

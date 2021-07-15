@@ -9,6 +9,15 @@ const styles = StyleSheet.create({
         marginVertical: .25
     },
 
+    replyContainer: {
+        backgroundColor: Colors.COLOR_WHITE,
+        flexDirection: 'row',
+        paddingVertical: Mixins.scaleSize(10),
+        paddingLeft: Mixins.scaleSize(36),
+        paddingRight: Mixins.scaleSize(10),
+        marginVertical: .25
+    },
+
     containerSelected: {
         backgroundColor: Colors.CYAN_BLUE
     },
@@ -20,8 +29,17 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
 
+    replyAvatar: {
+        height: Mixins.scaleSize(18),
+        width: Mixins.scaleSize(18),
+        backgroundColor: 'gray',
+        borderRadius: 10
+    },
+
     rightContent: {
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: Mixins.scaleSize(8)
     },
 
@@ -33,6 +51,11 @@ const styles = StyleSheet.create({
     timestamp: {
         color: Colors.COLOR_DARK_GRAY,
         marginTop: Mixins.scaleSize(8)
+    },
+
+    replyTimestamp: {
+        color: Colors.COLOR_DARK_GRAY,
+        marginTop: Mixins.scaleSize(6)
     },
 
     bottomContainer: {

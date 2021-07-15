@@ -169,7 +169,6 @@ const HomeTopicScreen = ({ navigation, route }) => {
                                 showBottom={currentUser?.email !== '4dm1n2021'}
                                 onLikePress={() => toggleLike(item?.id)}
                                 onDisLikePress={() => toggleDisLike(item?.id)}
-                                onProfilePress={() => navigation.navigate('ProfileDetail', { data: item })}
                                 onOptionsPress={() => (setModalType('popup'), setSelectedPost(item), setShowMenu(true))}
                                 onCommentPress={() => navigation.navigate('Detail', { data: item })}
                                 onCardPress={() => currentUser?.email == selectedPost?.creatorEmail ? navigation.navigate('PostTopic', { post: item }) : navigation.navigate('Detail', { data: item })} />
@@ -178,14 +177,14 @@ const HomeTopicScreen = ({ navigation, route }) => {
                         </>
                     } />
             }
-            {currentUser?.email !== '4dm1n2021' ? <FAB
+            {<FAB
                 visible={!showMenu && !snackBar /*&& currentUser.email !== '4dm1n2021'*/}
                 style={styles.fab}
                 small
                 color={'white'}
-                icon={currentUser?.email == '4dm1n2021' ? 'pen' : 'plus'}
+                icon={'plus'}
                 onPress={() => navigation.navigate('PostTopic')}
-            /> : null}
+            />}
             <RenderModal visible={showMenu}>
                 {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
             </RenderModal>

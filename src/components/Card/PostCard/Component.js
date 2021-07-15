@@ -41,9 +41,9 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
     return (
         <>
             <View style={styles.container}>
-                <View style={styles.topParent}>
+                {showOptions ? <View style={styles.topParent}>
                     <View style={styles.topLeftChild}>
-                        <TouchableOpacity activeOpacity={.6} style={styles.topLeftChildContent} onPress={onProfilePress}>
+                        <TouchableOpacity activeOpacity={.6} style={styles.topLeftChildContent}>
                             <View style={styles.topLeftProfieImage}>
                                 <Image source={{ uri: 'data:image/jpeg;base64,' + data?.creatorProfilePic }} style={styles.imageSize} resizeMode={'cover'} />
                             </View>
@@ -62,7 +62,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
                             <AntDesign name={'ellipsis1'} size={24} color={'gray'} />
                         </TouchableOpacity>
                     </View> : null}
-                </View>
+                </View> : null}
 
                 <TouchableOpacity activeOpacity={.6} onPress={onCardPress}>
                     <Text style={TEXT_NORMAL_BOLD}>{data?.title}</Text>
@@ -75,7 +75,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
                     {data?.banner ? <Image source={{ uri: `data:image/jpeg;base64,${data?.banner}` }} style={{ width: '100%', height: 256, borderRadius: 12 }} resizeMode={'cover'} /> : null}
                 </TouchableOpacity>
             </View>
-            <View style={styles.centerContainer}>
+            {showOptions ? <View style={styles.centerContainer}>
                 <View style={styles.topRightLove}>
                     <AntDesign name={'heart'} size={10} color={Colors.COLOR_RED} />
                     <Text style={[{ ...TEXT_SMALL_BOLD }, styles.centerLike]} >{data?.likeCounts}</Text>
@@ -84,7 +84,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
                     <Text style={[{ ...TEXT_SMALL_BOLD }, styles.centerLike]} >{data?.dislikeCounts}</Text>
                 </View>
                 <Text style={[{ ...TEXT_SMALL_BOLD }, styles.centerComment]} >{data?.commentCounts} {data?.commentCounts >= 2 ? ' Comments' : ' Comment'}</Text>
-            </View>
+            </View> : null}
             {showBottom ? <View style={styles.bottomContainer} >
                 <TouchableOpacity activeOpacity={.6} style={styles.bottomLikeContainer} onPress={onLikePress}>
                     <AntDesign name={'heart'} size={16} color={liked !== -1 ? Colors.COLOR_RED : Colors.COLOR_DARK_GRAY} />

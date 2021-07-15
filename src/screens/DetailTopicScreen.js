@@ -15,7 +15,7 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_POST, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_COMMENT, DISLIKE_POST, LIKE_COMMENT, LIKE_POST, onCommentReported, POST_REFERENCE, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
@@ -77,8 +77,13 @@ const DetailTopicScreen = ({ navigation, route }) => {
         const commentData = {
             comment: comment,
             timestamp: moment().format(),
-            reportCounts: 0
+            reportCounts: 0,
+            likeCounts: 0,
+            dislikeCounts: 0,
+            likeUser: [],
+            dislikeUser: []
         }
+
 
         await COMMENT_POST(POST_DATA?.id, currentUser, commentData)
             .then(() => {
@@ -160,6 +165,18 @@ const DetailTopicScreen = ({ navigation, route }) => {
             })
     }
 
+    async function onLikeComment(ids) {
+        await LIKE_COMMENT(POST_DATA?.id, currentUser?.email, ids)
+            .then(() => 'sukeses')
+            .catch(() => 'errors')
+    }
+
+    async function onDisLikeComment(ids) {
+        await DISLIKE_COMMENT(POST_DATA?.id, currentUser?.email, ids)
+            .then(() => 'sukeses')
+            .catch(() => 'errors')
+    }
+
     const menu = [
         {
             text: post?.creatorEmail == currentUser?.email ? 'Delete Post' : 'Report',
@@ -192,7 +209,6 @@ const DetailTopicScreen = ({ navigation, route }) => {
                             user={currentUser}
                             showComment={false}
                             showBottom={currentUser?.email !== '4dm1n2021'}
-                            onProfilePress={() => navigation.navigate('ProfileDetail', { data: post })}
                             onLikePress={() => toggleLike(POST_DATA?.id)}
                             onDisLikePress={() => toggleDisLike(POST_DATA?.id)}
                             onOptionsPress={() => (setModalType('popup'), setShowMenu(true))}
@@ -207,11 +223,14 @@ const DetailTopicScreen = ({ navigation, route }) => {
                 renderItem={({ item, index }) =>
                     <CommentCard
                         data={item}
-                        isSelected={selectedComment == index}
+                        indexed={index}
+                        isSelected={selectedComment}
                         email={currentUser?.email}
-                        onProfilePress={() => navigation.navigate('ProfileDetail', { comment: item })}
+                        showReply={false}
                         onButtonPrees={(t) => t == 'r' ? toggleReportComment() : toggleDeleteComment()}
-                        onPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)} />
+                        onLongPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)}
+                        onLikePress={(ids) => onLikeComment(ids)}
+                        onDisLikePress={(ids) => onDisLikeComment(ids)} />
                 } />
 
             {selectedComment == null && currentUser?.email !== '4dm1n2021' ? <View style={styles.bottomContainer}>

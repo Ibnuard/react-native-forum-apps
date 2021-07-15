@@ -22,6 +22,7 @@ const EditProfileScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [selectedImage, setSelectedImage] = React.useState(userData?.photoUrl)
     const [name, setName] = React.useState(userData?.name)
+    const [phone, setPhone] = React.useState(userData?.phone ? userData?.phone : '')
 
     const { updateUser } = React.useContext(AuthContext)
 
@@ -64,13 +65,15 @@ const EditProfileScreen = ({ navigation, route }) => {
             .doc(userData?.email)
             .update({
                 name: name,
-                photoUrl: selectedImage
+                photoUrl: selectedImage,
+                phone: phone
             })
             .then(() => {
                 const user = {
                     name: name,
                     photoUrl: selectedImage,
-                    email: userData?.email
+                    email: userData?.email,
+                    phone: phone
                 }
                 updateUser(user)
                 doMassiveUpdate()
@@ -104,6 +107,15 @@ const EditProfileScreen = ({ navigation, route }) => {
             <Input
                 value={name}
                 onChangeText={(text) => setName(text)}
+                maxLength={32}
+                style={{ ...TEXT_NORMAL_BOLD }} />
+            <Text style={{ ...TEXT_NORMAL_BOLD }}>Phone Number</Text>
+            <Input
+                value={phone}
+                onChangeText={(text) => setPhone(text)}
+                placeholder={'ex. 021xxx'}
+                keyboardType={'phone-pad'}
+                placeholderTextColor={'grey'}
                 maxLength={32}
                 style={{ ...TEXT_NORMAL_BOLD }} />
             <Text style={{ ...TEXT_NORMAL_BOLD, marginTop: Mixins.scaleSize(12) }}>Email</Text>

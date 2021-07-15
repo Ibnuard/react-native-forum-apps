@@ -32,6 +32,7 @@ const TopicScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [showMenu, setShowMenu] = React.useState(false)
     const postRef = firestore().collection('Posts')
+    const adminPostRef = firestore().collection('AdminPost')
     const [modalType, setModalType] = React.useState('popup')
     const [selectedImage, setSelectedImage] = React.useState(selectedPost?.banner ?? '')
 
@@ -61,18 +62,32 @@ const TopicScreen = ({ navigation, route }) => {
             dislikeUser: []
         }
 
-        await postRef
-            .add(postStructure)
-            .then(() => {
-                console.log('Posted!!');
-                setIsLoading(false)
-                setPost({ title: '', description: '' })
-                navigation.goBack()
-            })
-            .catch((err) => {
-                setIsLoading(false)
-                console.log('error: ' + err)
-            })
+        if (currentUser?.email == '4dm1n2021') {
+            await postRef.doc('ADMIN').set(postStructure)
+                .then(() => {
+                    console.log('Posted!!');
+                    setIsLoading(false)
+                    setPost({ title: '', description: '' })
+                    navigation.goBack()
+                })
+                .catch((err) => {
+                    setIsLoading(false)
+                    console.log('error: ' + err)
+                })
+        } else {
+            await postRef
+                .add(postStructure)
+                .then(() => {
+                    console.log('Posted!!');
+                    setIsLoading(false)
+                    setPost({ title: '', description: '' })
+                    navigation.goBack()
+                })
+                .catch((err) => {
+                    setIsLoading(false)
+                    console.log('error: ' + err)
+                })
+        }
     }
 
     async function handleTakePicture() {
@@ -110,7 +125,7 @@ const TopicScreen = ({ navigation, route }) => {
 
     async function updatePost() {
         setIsLoading(true)
-        await POST_REFERENCE.doc(selectedPost?.id).update({
+        await POST_REFERENCE.doc('ADMIN').update({
             title: post.title,
             description: post.description,
             timestamp: moment().format(),
@@ -183,7 +198,7 @@ const TopicScreen = ({ navigation, route }) => {
                             <Text style={[{ ...TEXT_SMALL_REGULAR }, styles.imageCaption]} >Tap image to remove</Text>
                         </TouchableOpacity> : null}
                     </View>
-                    <Button disabled={!post.title || !post.description || isLoading} text={selectedImage ? 'Update' : 'Post'} onPress={() => selectedPost ? updatePost() : sendPost()} />
+                    <Button disabled={!post.title || !post.description || isLoading} text={selectedPost ? 'Update' : 'Post'} onPress={() => selectedPost ? updatePost() : sendPost()} />
                     <RenderModal visible={showMenu}>
                         {modalType == 'popup' ? <Menu item={menu} /> : <Indicator />}
                     </RenderModal>

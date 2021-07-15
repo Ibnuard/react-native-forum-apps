@@ -32,8 +32,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingHorizontal: Mixins.scaleSize(12),
         paddingVertical: Mixins.scaleSize(16),
-        position: 'absolute',
-        bottom: 0,
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',

@@ -14,8 +14,6 @@ const styles = StyleSheet.create({
         padding: Mixins.scaleSize(14),
         flexDirection: 'row',
         alignItems: 'center',
-        borderBottomColor: Colors.COLOR_LIGHT_GRAY,
-        borderBottomWidth: .25
     },
 
     backButton: {
@@ -26,6 +24,11 @@ const styles = StyleSheet.create({
 
     name: {
         color: Colors.COLOR_WHITE,
+        marginTop: Mixins.scaleSize(8)
+    },
+
+    nameDark: {
+        color: Colors.COLOR_BLACK,
         marginTop: Mixins.scaleSize(8)
     },
 

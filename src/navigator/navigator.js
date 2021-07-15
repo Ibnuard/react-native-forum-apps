@@ -134,7 +134,7 @@ export const AdminNavigator = () => {
         })}>
             <Tab.Screen
                 name="HomeAdmin"
-                component={HomeTopicScreen}
+                component={HomeAdminScreen}
                 options={{
                     headerShown: false,
                 }} />
