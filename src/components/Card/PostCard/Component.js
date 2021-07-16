@@ -74,6 +74,7 @@ const PostCard = ({ data, onCardPress, onLikePress, onDisLikePress, onCommentPre
                         </Text>}
                     {data?.banner ? <Image source={{ uri: `data:image/jpeg;base64,${data?.banner}` }} style={{ width: '100%', height: 256, borderRadius: 12 }} resizeMode={'cover'} /> : null}
                 </TouchableOpacity>
+                {showOptions ? null : <Text style={{ ...TEXT_SMALL_REGULAR, color: Colors.COLOR_DARK_GRAY, marginTop: 12 }}>{moment(data?.timestamp).startOf().fromNow()}</Text>}
             </View>
             {showOptions ? <View style={styles.centerContainer}>
                 <View style={styles.topRightLove}>

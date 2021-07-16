@@ -74,9 +74,9 @@ const CommentCard = ({ data, replyData = [], isSelected, indexed, onPress, onLon
 
                     return (
                         <>
-                            <TouchableOpacity style={[styles.replyContainer, selected('r' + index) ? styles.containerSelected : null]} activeOpacity={.7} onLongPress={() => !onReplyLongPress ? null : onReplyLongPress('r' + index)} onPress={onPress}>
+                            <TouchableOpacity style={[styles.replyContainer, selected(item.id + index) ? styles.containerSelected : null]} activeOpacity={.7} onLongPress={() => !onReplyLongPress ? null : onReplyLongPress(item?.id + index)} onPress={onPress}>
                                 <TouchableOpacity activeOpacity={.7}>
-                                    <Image source={{ uri: 'data:image/jpeg;base64,' + data?.photoUrl }} style={styles.replyAvatar} />
+                                    <Image source={{ uri: 'data:image/jpeg;base64,' + item?.photoUrl }} style={styles.replyAvatar} />
                                 </TouchableOpacity>
                                 <View style={styles.rightContent}>
                                     <View style={{ flex: 1 }}>

@@ -329,12 +329,12 @@ export const GET_IMAGE_BANNER = async () => {
     return banner.data()
 }
 
-export async function deleteQueryBatch(id) {
+export async function deleteQueryBatch(id, deletePost = true) {
     console.log('START CLEAN DELETE!!!')
     const snapshot = await POST_REFERENCE.doc(id).collection('Comments').get()
 
     const batchSize = snapshot.size;
-    if (batchSize === 0) {
+    if (batchSize === 0 && deletePost == true) {
         // When there are no documents left, we are done
         DELETE_POST(id)
         return;
@@ -353,4 +353,44 @@ export async function deleteQueryBatch(id) {
         .catch((err) => {
             console.log(err)
         })
+}
+
+export async function deleteAllComments(id) {
+    console.log('START CLEAN DELETE!!!')
+    await POST_REFERENCE.doc(id).collection('Comments').get()
+        .then((querySnapshot) => {
+            const batch = firestore().batch()
+
+            querySnapshot.forEach(function (doc) {
+                batch?.delete(doc.ref)
+            })
+
+            return batch?.commit()
+        })
+        .then(() => {
+            return onCommentReset('ADMIN')
+        })
+        .catch((Err) => {
+            console.log('err : ' + Err);
+        })
+}
+
+function onCommentReset(postId) {
+    // Create a reference to the post
+    console.log('Reseting counts...');
+    const postReference = POST_REFERENCE.doc(postId);
+
+    return firestore().runTransaction(async transaction => {
+        // Get post data first
+        const postSnapshot = await transaction.get(postReference);
+
+        if (!postSnapshot.exists) {
+            throw 'Post does not exist!';
+        }
+        transaction.update(postReference, {
+            commentCounts: 0,
+        });
+
+        console.log('comments deleted...')
+    });
 }

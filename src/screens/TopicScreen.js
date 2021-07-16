@@ -23,7 +23,7 @@ import Menu from '../components/Modal/Menu/Component'
 import Indicator from '../components/Modal/Indicator/Component'
 
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { POST_REFERENCE } from '../api/Firestore'
+import { deleteAllComments, deleteQueryBatch, POST_REFERENCE } from '../api/Firestore'
 
 const TopicScreen = ({ navigation, route }) => {
     const selectedPost = route?.params?.post
@@ -132,13 +132,26 @@ const TopicScreen = ({ navigation, route }) => {
             banner: selectedImage
         }).then(() => {
             console.log('Posted!!');
-            setIsLoading(false)
-            setPost({ title: '', description: '' })
-            navigation.goBack()
+
+            deleteComments()
         })
             .catch((err) => {
                 setIsLoading(false)
                 console.log('error: ' + err)
+            })
+    }
+
+    async function deleteComments() {
+        console.log('deleting comments....');
+        await deleteAllComments('ADMIN')
+            .then(() => {
+                setIsLoading(false)
+                setPost({ title: '', description: '' })
+                navigation.goBack()
+            })
+            .catch((err) => {
+                setIsLoading(false)
+                console.log('err : ' + err)
             })
     }
 
