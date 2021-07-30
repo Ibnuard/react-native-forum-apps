@@ -24,6 +24,8 @@ import PostReportScreen from '../screens/PostReportScreen';
 import CommentReportScreen from '../screens/CommentReportScreen';
 import HomeAdminScreen from '../screens/HomeAdminScreen';
 import HomeTopicScreen from '../screens/HomeAdminTopicScreen';
+import TermsCondition from '../screens/TermsConditionScreen';
+import PrivacyPolicy from '../screens/PrivacyPolicyScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -210,6 +212,18 @@ export const HomeFlow = ({ admin = false }) => {
             <Stack.Screen
                 name="PostTopic"
                 component={TopicScreen}
+                options={{
+                    headerShown: false,
+                }} />
+            <Stack.Screen
+                name="TermsCondition"
+                component={TermsCondition}
+                options={{
+                    headerShown: false,
+                }} />
+            <Stack.Screen
+                name="PAP"
+                component={PrivacyPolicy}
                 options={{
                     headerShown: false,
                 }} />

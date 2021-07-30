@@ -254,6 +254,18 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
                         <Text style={{ ...TEXT_MEDIUM_BOLD }}>Suggestion Topic</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.navigate('TermsCondition')}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'solution1'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Terms and Conditions</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => navigation.navigate('PAP')}>
+                        <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
+                            <AntDesign name={'solution1'} size={18} color={'white'} />
+                        </View>
+                        <Text style={{ ...TEXT_MEDIUM_BOLD }}>Privacy and Policy</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', padding: Mixins.scaleSize(12), borderBottomWidth: .25, borderBottomColor: 'grey' }} onPress={() => handleLogout()}>
                         <View style={{ width: Mixins.scaleSize(36), height: Mixins.scaleSize(36), backgroundColor: Colors.COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center', borderRadius: 18, marginRight: Mixins.scaleSize(10) }}>
                             <AntDesign name={'logout'} size={18} color={'white'} />

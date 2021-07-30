@@ -15,7 +15,7 @@ import { AuthContext } from '../store/Context'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { TEXT_LARGE_BOLD, TEXT_MEDIUM_REGULAR, TEXT_NORMAL_BOLD, TEXT_SMALL_BOLD, TEXT_SMALL_REGULAR } from '../common/Typography'
-import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_COMMENT, DISLIKE_POST, LIKE_COMMENT, LIKE_POST, onCommentReported, POST_REFERENCE, REPLY_COMMENT, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
+import { COMMENT_POST, deleteQueryBatch, DELETE_COMMENT, DELETE_POST, DISLIKE_COMMENT, DISLIKE_POST, GET_IMAGE_BANNER, LIKE_COMMENT, LIKE_POST, onCommentReported, POST_REFERENCE, REPLY_COMMENT, REPORT_COMMENT, REPORT_POST } from '../api/Firestore'
 import moment from 'moment'
 
 import RenderModal from '../components/Modal/Component';
@@ -37,6 +37,7 @@ const HomeAdminScreen = ({ navigation, route }) => {
     const [snackBar, setSnackBar] = React.useState(false)
     const [selectedComment, setSelectedComment] = React.useState(null)
     const [replyAt, setReplyAt] = React.useState(null)
+    const [banner, setBanner] = React.useState([])
     const id = 'ADMIN'
 
     React.useEffect(() => {
@@ -70,6 +71,16 @@ const HomeAdminScreen = ({ navigation, route }) => {
         // Stop listening for updates when no longer required
         return () => subscriber();
     }, [id]);
+
+    React.useEffect(() => {
+        getBanner()
+    }, [navigation])
+
+    async function getBanner() {
+        console.log('getting baner...');
+        const banner = await GET_IMAGE_BANNER()
+        setBanner(banner?.imageUrl)
+    }
 
     async function toggleLike(id) {
         console.log('like pressed')
@@ -244,18 +255,21 @@ const HomeAdminScreen = ({ navigation, route }) => {
                     </>
                 }
                 renderItem={({ item, index }) =>
-                    <CommentCard
-                        data={item}
-                        indexed={index}
-                        replyData={replyList}
-                        isSelected={selectedComment}
-                        email={currentUser?.email}
-                        onButtonPrees={(t, ids, isReply) => t == 'r' ? toggleReportComment(ids) : toggleDeleteComment(ids, isReply)}
-                        onReplyPress={() => setReplyAt(item)}
-                        onLongPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)}
-                        onReplyLongPress={(idx) => selectedComment !== idx ? setSelectedComment(idx) : setSelectedComment(null)}
-                        onLikePress={(ids) => onLikeComment(ids)}
-                        onDisLikePress={(ids) => onDisLikeComment(ids)} />
+                    <>
+                        <CommentCard
+                            data={item}
+                            indexed={index}
+                            replyData={replyList}
+                            isSelected={selectedComment}
+                            email={currentUser?.email}
+                            onButtonPrees={(t, ids, isReply) => t == 'r' ? toggleReportComment(ids) : toggleDeleteComment(ids, isReply)}
+                            onReplyPress={() => setReplyAt(item)}
+                            onLongPress={() => selectedComment !== index ? setSelectedComment(index) : setSelectedComment(null)}
+                            onReplyLongPress={(idx) => selectedComment !== idx ? setSelectedComment(idx) : setSelectedComment(null)}
+                            onLikePress={(ids) => onLikeComment(ids)}
+                            onDisLikePress={(ids) => onDisLikeComment(ids)} />
+                        {index !== 0 && (index + 1) % 5 == 0 && (index + 1) !== commentList?.length ? <Image source={{ uri: 'data:image/png;base64,' + banner[0] }} resizeMode={'cover'} style={{ width: '100%', minHeight: 180, maxHeight: 256 }} /> : null}
+                    </>
                 } />
 
             {selectedComment == null && currentUser?.email !== '4dm1n2021' ?
